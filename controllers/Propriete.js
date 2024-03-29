@@ -69,17 +69,17 @@ const getPropriety = (async (req, res) => {
 const deletePropriety = (async (req, res) => {
     try {
         const propriety = await Propriety.findById(req.params.id);
-    const elt = propriety.proprietyId;
-    const landlord = await Landlord.findOne({ landlordNumber: propriety.proprietyId.substr(0, 14) });
-    if (!landlord) {
-        return res.status(404).send('no user find')
-    }
-    const proprieties = landlord.listOfProprieties
-    const newProprieties = proprieties.filter(proprietyId => proprietyId !== elt);
-    landlord.listOfProprieties = newProprieties;
-    await landlord.save();
-    await Propriety.deleteOne({ _id: propriety._id.toString() })
-    res.send("Propriety correctly removed")
+        const elt = propriety.proprietyId;
+        const landlord = await Landlord.findOne({ landlordNumber: propriety.proprietyId.substr(0, 14) });
+        if (!landlord) {
+            return res.status(404).send('no user find')
+        }
+        const proprieties = landlord.listOfProprieties
+        const newProprieties = proprieties.filter(proprietyId => proprietyId !== elt);
+        landlord.listOfProprieties = newProprieties;
+        await landlord.save();
+        await Propriety.deleteOne({ _id: propriety._id.toString() })
+        res.send("Propriety correctly removed")
     } catch (error) {
         console.log("error :"+error);
         res.send("Propriety not correctly removed" + error);

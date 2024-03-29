@@ -13,6 +13,13 @@ import routerPropriety from "./routes/Propriete.js";
 
 const app = express();
 
+/* const fruits = new Map([
+    ["apples", 500],
+    ["bananas", 300],
+    ["oranges", 200]
+  ]);
+  fruits.clear();
+  console.log(fruits); */
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors("*"));

@@ -1,0 +1,5 @@
+{"level":"info","message":"init"}
+{"level":"info","message":"test"}
+{"level":"info","message":"status code : 400 request object : {\"landlordFirstname\":\"Coulibaly\",\"landlordLastname\":\"Adama Youssouf\",\"landlordPassword\":\"54321\",\"landlordPasswordC\":\"54321\"} API method name : POST : signupLandlord error message :landlords validation failed: landlordNumber: Your landlord number is required"}
+{"level":"info","message":"init"}
+{"level":"info","message":"test"}

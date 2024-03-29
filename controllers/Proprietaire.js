@@ -6,6 +6,7 @@ import Landlord from '../models/Proprietaire.js';
 import Propriety from '../models/Propriete.js';
 import { upload } from './middleware/createOceanFolderMiddleware.js';
 import { generateOTP } from './middleware/otpMiddleware.js';
+import logger from './middleware/winston.js';
 
 
 // constante pour recuperer le code envoyé
@@ -54,15 +55,43 @@ const addTenant = (async (req, res) => {
         propriety.availableUnits = parseInt(propriety.availableUnits) - 1
         await propriety.save();
 
-        console.log(landlord);
-        console.log('---------------------------------------------');
-        console.log(propriety);
-
         res.status(200).json({ message: 'Élément ajouté avec succès' });
         //console.log(landlord.listOfTenants);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Erreur lors de l\'ajout de l\'élément' });
+    }
+})
+
+const deleteTenant = (async (req,res) => {
+    try {
+        const propriety = await Propriety.findById(req.params.id);
+        const landlord = await Landlord.findOne({ landlordNumber: propriety.proprietyId.substr(0, 14) });
+
+        if (!propriety || !landlord) {
+            res.status(400).json({
+                message: "propriety or landlord doesn't find"
+            })
+        }
+        console.log(req.body);
+        const listOfTenantsP = propriety.listOfTenants
+        const listOfTenantsL = landlord.listOfTenants
+        
+        const newListOfTenantsP = listOfTenantsP.filter(tenant => tenant.get('appartementNumber') !== req.body.appartementNumber || tenant.get('tenantNumber') !== req.body.tenantNumber);
+        const newListOfTenantsL = listOfTenantsL.filter(tenant => tenant.get('appartementNumber') !== req.body.appartementNumber);
+        
+        propriety.listOfTenants = newListOfTenantsP
+        landlord.listOfTenants = newListOfTenantsL
+
+        await propriety.save()
+        await landlord.save()
+        res.send("Tenant correctly removed")
+    } catch (error) {
+        logger.info("status code : 500" + " request object : " + JSON.stringify(req.body) + " API method name : DELETE : deleteTenant" + " Error message :" + error.message);
+        res.json({
+            message: "deleteTenant doesn't work",
+            error: error.message
+        })
     }
 })
 
@@ -251,7 +280,11 @@ const updateProfil = (async (req, res) => {
     try {
         await upload('identity', 'landlords/pieces')(req, res, async function (error) {
             if (error) {
-                console.log(error);
+                logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+                res.json({
+                    message: "upload doesn't work",
+                    error: error.message
+                })
             }
             await Landlord.findOne({ landlordNumber: req.body.landlordNumber })
                 .then(async user => {
@@ -259,15 +292,32 @@ const updateProfil = (async (req, res) => {
                         return res.status(500).json({ message: "user n'existe pas" })
                     }
                     user.landlordFirstname = req.body.landlordFirstname,
-                        user.landlordLastname = req.body.landlordLastname,
-                        user.landlordAdress = req.body.landlordAdress,
-                        user.identity = req.file.location
-                    await user.save();
+                    user.landlordLastname = req.body.landlordLastname,
+                    user.landlordAdress = req.body.landlordAdress,
+                    user.identity = req.file.location
+                    await user.save().catch(error => {
+                        logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+                        res.json({
+                            message: "user not save",
+                            error: error.message
+                        })
+                    });
                     res.send(user)
+                })
+                .catch(error => {
+                    logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+                    res.json({
+                        message: "findOne doesn't work",
+                        error: error.message
+                    })
                 })
         })
     } catch (error) {
-        console.log(error);
+        logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+        res.json({
+            message: "updateProfil doesn't work",
+            error: error.message
+        })
     }
 })
 
@@ -275,7 +325,11 @@ const updateProfilImage = (async (req, res) => {
     try {
         await upload('profile', 'photos de profil')(req, res, async function (error) {
             if (error) {
-                console.log(error);
+                logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
+                res.json({
+                    message: "upload doesn't work",
+                    error: error.message
+                })
             }
             await Landlord.findOne({ landlordNumber: req.body.landlordNumber })
                 .then(async user => {
@@ -287,9 +341,20 @@ const updateProfilImage = (async (req, res) => {
                     await user.save();
                     res.send(user)
                 })
+                .catch(error => {
+                    logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
+                    res.json({
+                        message: "findOne doesn't work",
+                        error: error.message
+                    })
+                })
         })
     } catch (error) {
-        console.log(error);
+        logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
+        res.json({
+            message: "updateProfilImage doesn't work",
+            error: error.message
+        })
     }
 })
 
@@ -309,12 +374,28 @@ const updateLandlordPassword = (async (req, res) => {
                             user.landlordPassword = hash_new
                             user.save();
                             res.send(user)
+                        }).catch(error => {
+                            logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+                            res.json({
+                                message: "bscypt compare don't work",
+                                error: error.message
+                            })
                         })
                 }
             )
-            .catch(error => console.log(error))
+            .catch(error => {
+                logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+                res.json({
+                    message: "findOne doesn't work",
+                    error: error.message
+                })
+            })
     } catch (error) {
-        console.log(error);
+        logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+        res.json({
+            message: "updateLandlordPassword doesn't work",
+            error: error.message
+        })
     }
 })
 
@@ -359,58 +440,76 @@ const signupLandlord = (async (req, res) => {
                                 token: token
                             })
                         })
-                        .catch(error => res.status(400).json({
-                            message: "non inscrit",
-                            error
-                        }));
+                        .catch(error => {
+                            logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+                            res.status(400).json({
+                            message: "save landlord crash",
+                            error: error.message
+                        })});
                 })
-                .catch(error => res.status(500).json({
+                .catch(error =>{
+                    logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+                    res.status(500).json({
                     message: "no hash",
-                    error
-                }))
+                    error: error.message
+                })})
         }
     } catch (error) {
-        console.log(error);
+        logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+        res.status(500).json({
+            message: "signup doesn't work",
+            error: error.message
+        })
     }
 })
 
 const signinLandlord = (async (req, res) => {
-    await Landlord.findOne({ landlordNumber: req.body.landlordNumber }).then(
-        landlord => {
-            if (landlord == null) {
-                res.status(500).json({
-                    status: "500",
-                    message: 'user et / ou mot de passe incorrect'
-                })
-            } else {
-                bcrypt.compare(req.body.landlordPassword, landlord.landlordPassword)
-                    .then(valid => {
-                        console.log(valid);
-                        if (!valid) {
-                            console.log("password");
-                            res.status(400).json({
-                                status: "400",
-                                message: 'user et / ou mot de passe incorrect'
-                            })
-                        }
-                        if (valid) {
-                            const token = createToken(landlord._id);
-                            console.log("con");
-                            return res.status(201).json({
-                                status: "201",
-                                data: landlord,
-                                token: token,
-                                message: 'connected'
-                            })
-                        }
+    try {
+        await Landlord.findOne({ landlordNumber: req.body.landlordNumber }).then(
+            landlord => {
+                if (landlord == null) {
+                    res.status(500).json({
+                        status: "500",
+                        message: 'user et / ou mot de passe incorrect'
                     })
-                    .catch(error => res.json({
-                        message: "no compare",
-                        error
-                    }))
-            }
+                } else {
+                    bcrypt.compare(req.body.landlordPassword, landlord.landlordPassword)
+                        .then(valid => {
+                            console.log(valid);
+                            if (!valid) {
+                                console.log("password");
+                                res.status(400).json({
+                                    status: "400",
+                                    message: 'user et / ou mot de passe incorrect'
+                                })
+                            }
+                            if (valid) {
+                                const token = createToken(landlord._id);
+                                console.log("con");
+                                return res.status(201).json({
+                                    status: "201",
+                                    data: landlord,
+                                    token: token,
+                                    message: 'connected'
+                                })
+                            }
+                        })
+                        .catch(error => {
+                            logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signinLandlord" + " Error message :" + error.message);
+                            res.json({
+                            message: "bscypt compare doesn't work",
+                            error
+                        })})
+                }
+            })
+    } catch (error) {
+        logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signinLandlord" + " Error message :" + error.message);
+        res.json({
+            message: "signin doesn't work",
+            error
         })
+    }
 })
 
-export { addTenant, confirmLandlordPassword, deleteLandlord, getLandlord, getLandlordProprieties, getLandlords, getPhotoProfil, sendAuthOTP, signinLandlord, signupLandlord, updateLandlordPassword, updateProfil, updateProfilImage, verifyAuthOTP };
+export { addTenant, confirmLandlordPassword, deleteLandlord, deleteTenant, getLandlord, getLandlordProprieties, getLandlords, getPhotoProfil, sendAuthOTP, signinLandlord, signupLandlord, updateLandlordPassword, updateProfil, updateProfilImage, verifyAuthOTP };
 
