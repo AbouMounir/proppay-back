@@ -6,7 +6,7 @@ import Landlord from '../models/Proprietaire.js';
 import Propriety from '../models/Propriete.js';
 import { upload } from './middleware/createOceanFolderMiddleware.js';
 import { generateOTP } from './middleware/otpMiddleware.js';
-import logger from './middleware/winston.js';
+//import logger from './middleware/winston.js';
 
 
 // constante pour recuperer le code envoyé
@@ -73,7 +73,7 @@ const deleteTenant = (async (req,res) => {
                 message: "propriety or landlord doesn't find"
             })
         }
-        
+
         const listOfTenantsP = propriety.listOfTenants
         const listOfTenantsL = landlord.listOfTenants
         
@@ -87,7 +87,7 @@ const deleteTenant = (async (req,res) => {
         await landlord.save()
         res.send("Tenant correctly removed")
     } catch (error) {
-        logger.info("status code : 500" + " request object : " + JSON.stringify(req.body) + " API method name : DELETE : deleteTenant" + " Error message :" + error.message);
+        //logger.info("status code : 500" + " request object : " + JSON.stringify(req.body) + " API method name : DELETE : deleteTenant" + " Error message :" + error.message);
         res.json({
             message: "deleteTenant doesn't work",
             error: error.message
@@ -280,7 +280,7 @@ const updateProfil = (async (req, res) => {
     try {
         await upload('identity', 'landlords/pieces')(req, res, async function (error) {
             if (error) {
-                logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+                //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
                 res.json({
                     message: "upload doesn't work",
                     error: error.message
@@ -296,7 +296,7 @@ const updateProfil = (async (req, res) => {
                     user.landlordAdress = req.body.landlordAdress,
                     user.identity = req.file.location
                     await user.save().catch(error => {
-                        logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+                        //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
                         res.json({
                             message: "user not save",
                             error: error.message
@@ -305,7 +305,7 @@ const updateProfil = (async (req, res) => {
                     res.send(user)
                 })
                 .catch(error => {
-                    logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+                    //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
                     res.json({
                         message: "findOne doesn't work",
                         error: error.message
@@ -313,7 +313,7 @@ const updateProfil = (async (req, res) => {
                 })
         })
     } catch (error) {
-        logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+        //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
         res.json({
             message: "updateProfil doesn't work",
             error: error.message
@@ -325,7 +325,7 @@ const updateProfilImage = (async (req, res) => {
     try {
         await upload('profile', 'photos de profil')(req, res, async function (error) {
             if (error) {
-                logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
+                //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
                 res.json({
                     message: "upload doesn't work",
                     error: error.message
@@ -342,7 +342,7 @@ const updateProfilImage = (async (req, res) => {
                     res.send(user)
                 })
                 .catch(error => {
-                    logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
+                    //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
                     res.json({
                         message: "findOne doesn't work",
                         error: error.message
@@ -350,7 +350,7 @@ const updateProfilImage = (async (req, res) => {
                 })
         })
     } catch (error) {
-        logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
+        //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
         res.json({
             message: "updateProfilImage doesn't work",
             error: error.message
@@ -375,7 +375,7 @@ const updateLandlordPassword = (async (req, res) => {
                             user.save();
                             res.send(user)
                         }).catch(error => {
-                            logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+                            //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
                             res.json({
                                 message: "bscypt compare don't work",
                                 error: error.message
@@ -384,14 +384,14 @@ const updateLandlordPassword = (async (req, res) => {
                 }
             )
             .catch(error => {
-                logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+                //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
                 res.json({
                     message: "findOne doesn't work",
                     error: error.message
                 })
             })
     } catch (error) {
-        logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+        //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
         res.json({
             message: "updateLandlordPassword doesn't work",
             error: error.message
@@ -441,21 +441,21 @@ const signupLandlord = (async (req, res) => {
                             })
                         })
                         .catch(error => {
-                            logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+                            //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
                             res.status(400).json({
                             message: "save landlord crash",
                             error: error.message
                         })});
                 })
                 .catch(error =>{
-                    logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+                    //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
                     res.status(500).json({
                     message: "no hash",
                     error: error.message
                 })})
         }
     } catch (error) {
-        logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+        //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
         res.status(500).json({
             message: "signup doesn't work",
             error: error.message
@@ -495,7 +495,7 @@ const signinLandlord = (async (req, res) => {
                             }
                         })
                         .catch(error => {
-                            logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signinLandlord" + " Error message :" + error.message);
+                            //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signinLandlord" + " Error message :" + error.message);
                             res.json({
                             message: "bscypt compare doesn't work",
                             error
@@ -503,7 +503,7 @@ const signinLandlord = (async (req, res) => {
                 }
             })
     } catch (error) {
-        logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signinLandlord" + " Error message :" + error.message);
+        //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signinLandlord" + " Error message :" + error.message);
         res.json({
             message: "signin doesn't work",
             error
