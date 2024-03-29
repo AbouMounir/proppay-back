@@ -73,7 +73,7 @@ const deleteTenant = (async (req,res) => {
                 message: "propriety or landlord doesn't find"
             })
         }
-        console.log(req.body);
+        
         const listOfTenantsP = propriety.listOfTenants
         const listOfTenantsL = landlord.listOfTenants
         

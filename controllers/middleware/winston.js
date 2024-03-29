@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+/* import dotenv from 'dotenv';
 import winston from "winston";
 import 'winston-daily-rotate-file';
 
@@ -37,5 +37,4 @@ const logger = winston.createLogger({
     }))
 } */
 
-logger.info('init');
-export default logger
+/*export default logger */

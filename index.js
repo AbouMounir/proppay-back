@@ -1,5 +1,3 @@
-//npm install -g firebase-tools
-
 import bodyParser from "body-parser";
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -13,13 +11,7 @@ import routerPropriety from "./routes/Propriete.js";
 
 const app = express();
 
-/* const fruits = new Map([
-    ["apples", 500],
-    ["bananas", 300],
-    ["oranges", 200]
-  ]);
-  fruits.clear();
-  console.log(fruits); */
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors("*"));
@@ -27,11 +19,6 @@ app.use(cors("*"));
 dotenv.config({ path: './config/.env' })
 connectDb();
 
-/* app.post('/landlords',upload.single('landlords'), (async (req, res) => {
-    console.log(req.file);
-    await uploadFileToFolder("landlords5",req.file.originalname)
-    res.json({ fileUrl: req.file.location });
-})); */
 app.use('/',routerImage)
 app.use('/users/tenants', routerTenant)
 app.use('/users/landlords', routerLandlord)
