@@ -6,8 +6,7 @@ import Landlord from '../models/Proprietaire.js';
 import Propriety from '../models/Propriete.js';
 import { upload } from './middleware/createOceanFolderMiddleware.js';
 import { generateOTP } from './middleware/otpMiddleware.js';
-//import logger from './middleware/winston.js';
-
+import log from './middleware/winston.js';
 
 // constante pour recuperer le code envoyé
 let otpSend = "";
@@ -47,23 +46,33 @@ const addTenant = (async (req, res) => {
         const landlord = await Landlord.findOne({ landlordNumber: req.body.landlordNumber });
         const propriety = await Propriety.findOne({ proprietyId: req.body.landlordNumber + '-' + req.body.proprietyName });
 
+        if (!propriety || !landlord) {
+            res.status(400).json({
+                message: "propriety or landlord doesn't find"
+            })
+        }
+
         landlord.listOfTenants.push(locataire)
-        await landlord.save();
+        await landlord.save().catch(error => {
+            log(400, "addTenant => landlord save catch", req.body, error.message)
+            res.status(500).json({ message: 'landlord save catch' });
+        });;
 
         propriety.listOfTenants.push(locataire);
         propriety.occupiedUnits = parseInt(propriety.occupiedUnits) + 1
         propriety.availableUnits = parseInt(propriety.availableUnits) - 1
-        await propriety.save();
-
+        await propriety.save().catch(error => {
+            log(400, "addTenant => propriety save catch", req.body, error.message)
+            res.status(500).json({ message: 'propriety save catch' });
+        });
         res.status(200).json({ message: 'Élément ajouté avec succès' });
-        //console.log(landlord.listOfTenants);
     } catch (error) {
-        console.error(error);
+        log(400, "addTenant => try catch", req.body, error.message)
         res.status(500).json({ message: 'Erreur lors de l\'ajout de l\'élément' });
     }
 })
 
-const deleteTenant = (async (req,res) => {
+const deleteTenant = (async (req, res) => {
     try {
         const propriety = await Propriety.findById(req.params.id);
         const landlord = await Landlord.findOne({ landlordNumber: propriety.proprietyId.substr(0, 14) });
@@ -76,10 +85,10 @@ const deleteTenant = (async (req,res) => {
 
         const listOfTenantsP = propriety.listOfTenants
         const listOfTenantsL = landlord.listOfTenants
-        
+
         const newListOfTenantsP = listOfTenantsP.filter(tenant => tenant.get('appartementNumber') !== req.body.appartementNumber || tenant.get('tenantNumber') !== req.body.tenantNumber);
         const newListOfTenantsL = listOfTenantsL.filter(tenant => tenant.get('appartementNumber') !== req.body.appartementNumber);
-        
+
         propriety.listOfTenants = newListOfTenantsP
         landlord.listOfTenants = newListOfTenantsL
 
@@ -87,7 +96,7 @@ const deleteTenant = (async (req,res) => {
         await landlord.save()
         res.send("Tenant correctly removed")
     } catch (error) {
-        //logger.info("status code : 500" + " request object : " + JSON.stringify(req.body) + " API method name : DELETE : deleteTenant" + " Error message :" + error.message);
+        log(400, "deleteTenant => try catch", req.body, error.message)
         res.json({
             message: "deleteTenant doesn't work",
             error: error.message
@@ -144,11 +153,12 @@ const sendAuthOTP = (async (req, res) => {
                     })
             })
             .catch(error => {
-                res.send("no otpSend");
-                console.log(error)
+                log(400, "sendAuthOTP => post on m target api catch", req.body, error.message)
+                res.send("sendAuthOTP => post on m target api catch");
             });
     } catch (error) {
-        console.log(error);
+        log(400, "sendAuthOTP => try catch", req.body, error.message)
+        res.send("sendAuthOTP => try catch");
     }
 })
 
@@ -213,19 +223,38 @@ const confirmLandlordPassword = (async (req, res) => {
                     return res.status(201).json({ message: 'mot de passe correct' })
                 }
             )
-            .catch(error => console.log(error))
+            .catch(error => {
+                log(400, "confirmLandlordPassword => findOne catch", req.body, error.message)
+                res.send("confirmLandlordPassword => findOne catch");
+            })
     } catch (error) {
-        console.log(error);
+        log(400, "confirmLandlordPassword => try catch", req.body, error.message)
+        res.send("confirmLandlordPassword => try catch");
     }
 })
 
 const deleteLandlord = (async (req, res) => {
-    const landlord = await Landlord.findOne({ landlordNumber: req.params.landlordNumber })
-    await Landlord.deleteOne({ _id: landlord._id.toString() }).then(result => res.send(result))
+    const landlord = await Landlord.findOne({ landlordNumber: req.params.landlordNumber }).catch(
+        error => {
+            log(400, "deleteLandlord => findOne catch", req.body, error.message)
+            res.send("deleteLandlord => findOne catch");
+        }
+    )
+    await Landlord.deleteOne({ _id: landlord._id.toString() }).then(result => res.send(result)).catch(
+        error => {
+            log(400, "deleteLandlord => deleteOne catch", req.body, error.message)
+            res.send("deleteLandlord => deleteOne catch");
+        }
+    )
 })
 
 const getLandlords = ((req, res) => {
-    Landlord.find({}).then(item => res.send(item))
+    Landlord.find({}).then(item => res.send(item)).catch(
+        error => {
+            log(400, "getLandlords => findOne catch", req.body, error.message)
+            res.send("getLandlords => findOne catch");
+        }
+    )
 })
 
 const getLandlord = (async (req, res) => {
@@ -236,6 +265,12 @@ const getLandlord = (async (req, res) => {
             }
             res.send(item);
         })
+        .catch(
+            error => {
+                log(400, "getLandlord => findOne catch", req.body, error.message)
+                res.send("getLandlord => findOne catch");
+            }
+        )
 })
 
 const getPhotoProfil = (async (req, res) => {
@@ -243,10 +278,10 @@ const getPhotoProfil = (async (req, res) => {
         const landlord = await Landlord.findOne({ landlordNumber: req.params.landlordNumber });
         if (!landlord) {
             return res.status(404).send('user non trouvé.');
-        } // Assurez-vous de définir le type MIME approprié
+        }
         res.send(landlord.profilImage);
     } catch (error) {
-        console.error(error);
+        log(400, "getPhotoProfil => try catch", req.body, error.message)
         res.status(500).send('Erreur lors de la récupération de l\'image.');
     }
 });
@@ -264,14 +299,36 @@ const getLandlordProprieties = (async (req, res) => {
         }
 
         const proprietiesInfo = await Promise.all(proprieties.map(async (proprietyId) => {
-            const propriety = await Propriety.findOne({ proprietyId: proprietyId });
+            const propriety = await Propriety.findOne({ proprietyId: proprietyId }).catch(error => log(400, "getLandlordProprieties => findOne catch", req.body, error.message));
             return propriety
         }));
 
-        console.log(proprietiesInfo);
         res.send(proprietiesInfo)
     } catch (error) {
-        console.error(error);
+        log(400, "getLandlordProprieties => try catch", req.body, error.message)
+        res.status(500).send('Erreur lors de la récupération des infos');
+    }
+})
+
+const getLandlordTenants = (async (req, res) => {
+    try {
+        const landlord = await Landlord.findById(req.params.id);
+        if (!landlord) {
+            return res.status(404).send('user not find.');
+        }
+
+        const tenants = landlord.listOfTenants
+        if (!tenants) {
+            return res.status(404).send('no tenants find')
+        }
+
+        const tenantsInfo = await Promise.all(tenants.map(async (tenant) => {
+            return tenant
+        }));
+
+        res.send(tenantsInfo)
+    } catch (error) {
+        log(400, "getLandlordTenants => try catch", req.body, error.message)
         res.status(500).send('Erreur lors de la récupération des infos');
     }
 })
@@ -292,9 +349,9 @@ const updateProfil = (async (req, res) => {
                         return res.status(500).json({ message: "user n'existe pas" })
                     }
                     user.landlordFirstname = req.body.landlordFirstname,
-                    user.landlordLastname = req.body.landlordLastname,
-                    user.landlordAdress = req.body.landlordAdress,
-                    user.identity = req.file.location
+                        user.landlordLastname = req.body.landlordLastname,
+                        user.landlordAdress = req.body.landlordAdress,
+                        user.identity = req.file.location
                     await user.save().catch(error => {
                         //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
                         res.json({
@@ -375,23 +432,24 @@ const updateLandlordPassword = (async (req, res) => {
                             user.save();
                             res.send(user)
                         }).catch(error => {
-                            //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+
+                            log(400, "updateLandlordPassword => bscypt compare catch", req.body, error.message)
                             res.json({
-                                message: "bscypt compare don't work",
+                                message: "bscypt compare catch",
                                 error: error.message
                             })
                         })
                 }
             )
             .catch(error => {
-                //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+                log(400, "updateLandlordPassword => findOne catch", req.body, error.message)
                 res.json({
-                    message: "findOne doesn't work",
+                    message: "findOne catch",
                     error: error.message
                 })
             })
     } catch (error) {
-        //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+        log(400, "updateLandlordPassword => try catch", req.body, error.message)
         res.json({
             message: "updateLandlordPassword doesn't work",
             error: error.message
@@ -413,6 +471,7 @@ const updateLandlordPassword = (async (req, res) => {
     } catch (error) {
         console.log(error);
     }
+    "landlordNumber":"+2250785968796",
 }) */
 
 const signupLandlord = (async (req, res) => {
@@ -441,21 +500,23 @@ const signupLandlord = (async (req, res) => {
                             })
                         })
                         .catch(error => {
-                            //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+                            log(400, "signupLandlord => save landlord catch", req.body, error.message)
                             res.status(400).json({
-                            message: "save landlord crash",
-                            error: error.message
-                        })});
+                                message: "save landlord catch",
+                                error: error.message
+                            })
+                        });
                 })
-                .catch(error =>{
-                    //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+                .catch(error => {
+                    log(400, "signupLandlord => bscript hash catch", req.body, error.message)
                     res.status(500).json({
-                    message: "no hash",
-                    error: error.message
-                })})
+                        message: "bscript hash catch",
+                        error: error.message
+                    })
+                })
         }
     } catch (error) {
-        //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signupLandlord" + " Error message :" + error.message);
+        log(400, "signupLandlord => try catch", req.body, error.message)
         res.status(500).json({
             message: "signup doesn't work",
             error: error.message
@@ -475,9 +536,7 @@ const signinLandlord = (async (req, res) => {
                 } else {
                     bcrypt.compare(req.body.landlordPassword, landlord.landlordPassword)
                         .then(valid => {
-                            console.log(valid);
                             if (!valid) {
-                                console.log("password");
                                 res.status(400).json({
                                     status: "400",
                                     message: 'user et / ou mot de passe incorrect'
@@ -485,7 +544,6 @@ const signinLandlord = (async (req, res) => {
                             }
                             if (valid) {
                                 const token = createToken(landlord._id);
-                                console.log("con");
                                 return res.status(201).json({
                                     status: "201",
                                     data: landlord,
@@ -495,15 +553,16 @@ const signinLandlord = (async (req, res) => {
                             }
                         })
                         .catch(error => {
-                            //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signinLandlord" + " Error message :" + error.message);
+                            log(400, "signi,Landlord => bscypt compare catch", req.body, error.message)
                             res.json({
-                            message: "bscypt compare doesn't work",
-                            error
-                        })})
+                                message: "bscypt compare doesn't work",
+                                error
+                            })
+                        })
                 }
             })
     } catch (error) {
-        //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : signinLandlord" + " Error message :" + error.message);
+        log(400, "signinLandlord => try catch", req.body, error.message)
         res.json({
             message: "signin doesn't work",
             error
@@ -511,5 +570,5 @@ const signinLandlord = (async (req, res) => {
     }
 })
 
-export { addTenant, confirmLandlordPassword, deleteLandlord, deleteTenant, getLandlord, getLandlordProprieties, getLandlords, getPhotoProfil, sendAuthOTP, signinLandlord, signupLandlord, updateLandlordPassword, updateProfil, updateProfilImage, verifyAuthOTP };
+export { addTenant, confirmLandlordPassword, deleteLandlord, deleteTenant, getLandlord, getLandlordProprieties, getLandlordTenants, getLandlords, getPhotoProfil, sendAuthOTP, signinLandlord, signupLandlord, updateLandlordPassword, updateProfil, updateProfilImage, verifyAuthOTP };
 

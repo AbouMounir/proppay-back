@@ -8,6 +8,7 @@ import {
     deleteTenant,
     getLandlord,
     getLandlordProprieties,
+    getLandlordTenants,
     getLandlords,
     getPhotoProfil,
     sendAuthOTP,
@@ -24,7 +25,8 @@ import { authMiddleware } from '../controllers/middleware/authMiddleware.js';
 routerLandlord.get('/',authMiddleware, getLandlords)
 routerLandlord.get('/:landlordNumber',authMiddleware, getLandlord)
 routerLandlord.get('/photo-profil/:landlordNumber', getPhotoProfil)
-routerLandlord.get('/proprieties/:id', getLandlordProprieties)
+routerLandlord.get('/proprieties/:id',authMiddleware, getLandlordProprieties)
+routerLandlord.get('/tenants/:id',authMiddleware, getLandlordTenants)
 
 
 routerLandlord.post('/signup', signupLandlord)

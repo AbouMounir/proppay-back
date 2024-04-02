@@ -1,8 +1,9 @@
-/* import dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import winston from "winston";
 import 'winston-daily-rotate-file';
+import 'winston-mongodb';
 
-dotenv.config({ path: './../../config/.env' })
+dotenv.config({ path: './config/.env' })
 
 const transport1 = new winston.transports.DailyRotateFile({
     filename: 'log/infos-%DATE%.log',
@@ -21,14 +22,29 @@ const transport2 = new winston.transports.DailyRotateFile({
     maxFiles: '14d'
 });
 
+/* const transport3 = new winston.transports.MongoDB({
+    db: process.env.MONGODB_URI,
+    options: {
+        useUnifiedTopology: true
+    },
+    level: 'error',
+    collection: 'errors',
+    format: format.combine(format.timestamp(), format.json())
+}); */
+
 const logger = winston.createLogger({
     level: "debug",
     format: winston.format.json(),
     transports: [
-        transport1,
-        transport2,
         new winston.transports.Console(),
     ]
+});
+
+const log = (status, method, body, errorMessage) => logger.error({
+    status: status,
+    request_body: JSON.stringify(body),
+    error: errorMessage,
+    API_method: method
 });
 
 /* if (process.env.NODE_ENV !== 'production') {
@@ -37,4 +53,4 @@ const logger = winston.createLogger({
     }))
 } */
 
-/*export default logger */
+export default log
