@@ -20,32 +20,6 @@ app.use(cors("*"));
 dotenv.config({ path: './config/.env' })
 connectDb();
 
-/**
- * @swagger
- * /books:
- *   get:
- *     summary: Get example data
- *     description: Retrieve example data from the server
- *     responses:
- *       '200':
- *         description: Successful response
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Example data retrieved successfully
- */
-app.get('/books', (req,res) => {
-    res.send([{
-        id: 1,
-        title: "la chèvre de ma mère",
-        author: "Ricardo"
-    }])
-})
-
 app.use('/', routerImage)
 app.use('/users/tenants', routerTenant)
 app.use('/users/landlords', routerLandlord)
@@ -62,7 +36,7 @@ const options = {
         },
         
     },
-    apis: ['./*.js'], // Chemin vers les fichiers contenant les commentaires Swagger
+    apis: ['./routes/*.js'], // Chemin vers les fichiers contenant les commentaires Swagger
 };
 
 const specs = swaggerJSDoc(options);

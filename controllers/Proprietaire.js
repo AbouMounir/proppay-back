@@ -258,7 +258,7 @@ const getLandlords = ((req, res) => {
 })
 
 const getLandlord = (async (req, res) => {
-    await Landlord.findOne({ landlordNumber: req.params.landlordNumber }).then(
+    await Landlord.findById(req.params.id).then(
         item => {
             if (!item) {
                 res.send("user doesn't exit")
@@ -275,7 +275,7 @@ const getLandlord = (async (req, res) => {
 
 const getPhotoProfil = (async (req, res) => {
     try {
-        const landlord = await Landlord.findOne({ landlordNumber: req.params.landlordNumber });
+        const landlord = await Landlord.findById(req.params.id);
         if (!landlord) {
             return res.status(404).send('user non trouvé.');
         }
