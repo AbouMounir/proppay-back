@@ -9,7 +9,7 @@ const routerPropriety = express.Router()
  *   description: API to manage proprieties
  */
 
-/** 
+/**
  * @swagger
  *   /{id}:
  *     get:
@@ -21,7 +21,7 @@ const routerPropriety = express.Router()
  */
 routerPropriety.get('/:id', getPropriety)
 
-/** 
+/**
  * @swagger
  *   /:
  *     get:
@@ -33,7 +33,7 @@ routerPropriety.get('/:id', getPropriety)
  */
 routerPropriety.get('/', getProprieties)
 
-/** 
+/**
  * @swagger
  *   /add:
  *     post:
@@ -45,7 +45,7 @@ routerPropriety.get('/', getProprieties)
  */
 routerPropriety.post('/add', addPropriety)
 
-/** 
+/**
  * @swagger
  *   /{id}:
  *     delete:

@@ -38,9 +38,9 @@ import { authMiddleware } from '../controllers/middleware/authMiddleware.js';
  *         "200":
  *           description: The list of Landlords
  */
-routerLandlord.get('/',authMiddleware, getLandlords)
+routerLandlord.get('/', authMiddleware, getLandlords)
 
-/** 
+/**
  * @swagger
  *   /{id}:
  *     get:
@@ -57,9 +57,9 @@ routerLandlord.get('/',authMiddleware, getLandlords)
  *         "200":
  *           description: The landlord
  */
-routerLandlord.get('/:id',authMiddleware, getLandlord)
+routerLandlord.get('/:id', authMiddleware, getLandlord)
 
-/** 
+/**
  * @swagger
  *   /photo-profil/{id}:
  *     get:
@@ -78,7 +78,7 @@ routerLandlord.get('/:id',authMiddleware, getLandlord)
  */
 routerLandlord.get('/photo-profil/:id', getPhotoProfil)
 
-/** 
+/**
  * @swagger
  *   /proprieties/{id}:
  *     get:
@@ -95,9 +95,9 @@ routerLandlord.get('/photo-profil/:id', getPhotoProfil)
  *         "200":
  *           description: The landlord proprieties
  */
-routerLandlord.get('/proprieties/:id',authMiddleware, getLandlordProprieties)
+routerLandlord.get('/proprieties/:id', getLandlordProprieties)
 
-/** 
+/**
  * @swagger
  *   /tenants/{id}:
  *     get:
@@ -114,7 +114,7 @@ routerLandlord.get('/proprieties/:id',authMiddleware, getLandlordProprieties)
  *         "200":
  *           description: The landlord tenants
  */
-routerLandlord.get('/tenants/:id',authMiddleware, getLandlordTenants)
+routerLandlord.get('/tenants/:id', authMiddleware, getLandlordTenants)
 
 /**
  * @swagger
@@ -156,7 +156,7 @@ routerLandlord.post('/signin', signinLandlord)
  *         "200":
  *           description: landlord sign in successfully
  */
-routerLandlord.post('/confirm/password/:landlordNumber',authMiddleware, confirmLandlordPassword)
+routerLandlord.post('/confirm/password/:landlordNumber', authMiddleware, confirmLandlordPassword)
 
 /**
  * @swagger
@@ -170,7 +170,7 @@ routerLandlord.post('/confirm/password/:landlordNumber',authMiddleware, confirmL
  *         "200":
  *           description: otp send successfully
  */
-routerLandlord.post('/otp/send',sendAuthOTP)
+routerLandlord.post('/otp/send', sendAuthOTP)
 
 /**
  * @swagger
@@ -188,12 +188,41 @@ routerLandlord.post('/otp/verify', verifyAuthOTP)
 
 routerLandlord.put('/add-tenant', addTenant)
 /* routerLandlord.put('/:_id',authMiddleware, updateLandlordNumber) */
-routerLandlord.put(('/update-password/:landlordNumber'),authMiddleware, updateLandlordPassword)
-routerLandlord.put(('/update-profil'),authMiddleware, updateProfil)
-routerLandlord.put(('/photo-profil'),authMiddleware, updateProfilImage)
+routerLandlord.put(('/update-password'),  updateLandlordPassword)
+routerLandlord.put(('/update-profil'), authMiddleware, updateProfil)
+routerLandlord.put(('/photo-profil'), authMiddleware, updateProfilImage)
 
-routerLandlord.delete('/:landlordNumber',authMiddleware, deleteLandlord)
-routerLandlord.delete('/delete-tenant/:id', deleteTenant)
+/**
+ * @swagger
+ *   /:id:
+ *     delete:
+ *       summary: Delete a landlord by id
+ *       tags: [Landlords]
+ *       parameters:
+ *         - in: path
+ *           name: id
+ *           schema:
+ *             type: string
+ *           required: true
+ *           description: Id of a landlord
+ */
+routerLandlord.delete('/:id',authMiddleware, deleteLandlord)
+
+/**
+ * @swagger
+ *   /delete-tenant/:id:
+ *     delete:
+ *       summary: Delete a tenant on proprieties and landlords data
+ *       tags: [Landlords]
+ *       parameters:
+ *         - in: path
+ *           name: id
+ *           schema:
+ *             type: string
+ *           required: true
+ *           description: Id of a landlord
+ */
+routerLandlord.delete('/delete-tenant/:id',authMiddleware, deleteTenant)
 
 
 export default routerLandlord

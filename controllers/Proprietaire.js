@@ -83,6 +83,8 @@ const deleteTenant = (async (req, res) => {
             })
         }
 
+        const tenantExist = listOfTenantsP.reduce(tenant => tenant.get('appartementNumber') !== req.body.appartementNumber || tenant.get('tenantNumber') !== req.body.tenantNumber);
+
         const listOfTenantsP = propriety.listOfTenants
         const listOfTenantsL = landlord.listOfTenants
 
@@ -234,16 +236,12 @@ const confirmLandlordPassword = (async (req, res) => {
 })
 
 const deleteLandlord = (async (req, res) => {
-    const landlord = await Landlord.findOne({ landlordNumber: req.params.landlordNumber }).catch(
+    const landlord = await Landlord.findByIdAndDelete(req.params.id)
+        .then(result => res.send(result))
+        .catch(
         error => {
             log(400, "deleteLandlord => findOne catch", req.body, error.message)
             res.send("deleteLandlord => findOne catch");
-        }
-    )
-    await Landlord.deleteOne({ _id: landlord._id.toString() }).then(result => res.send(result)).catch(
-        error => {
-            log(400, "deleteLandlord => deleteOne catch", req.body, error.message)
-            res.send("deleteLandlord => deleteOne catch");
         }
     )
 })
