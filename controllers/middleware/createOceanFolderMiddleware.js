@@ -2,7 +2,6 @@ import aws from "aws-sdk";
 import dotenv from 'dotenv';
 import multer from "multer";
 import multerS3 from "multer-s3";
-import Landlord from "../../models/Proprietaire.js";
 
 dotenv.config({ path: './../../config/.env' })
 
@@ -37,7 +36,7 @@ const upload = (fieldName, bucketName) => multer({
         contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
         key: async function (req, file, cb) {
-            console.log(req.body);
+            /* console.log(req.body);
             const user = await Landlord.findOne({ landlordNumber: req.body.landlordNumber });
             console.log(user);
             if (!user) {
@@ -45,7 +44,8 @@ const upload = (fieldName, bucketName) => multer({
                 return cb(new Error("user n'existe pas"));
             } else {
                 cb(null, Date.now().toString() + '-' + file.originalname);
-            }
+            } */
+            cb(null, Date.now().toString() + '-' + file.originalname);
         }
     }),
 

@@ -17,6 +17,7 @@ import {
     updateLandlordPassword,
     updateProfil,
     updateProfilImage,
+    updateProfilInfo,
     verifyAuthOTP
 } from '../controllers/Proprietaire.js';
 import { authMiddleware } from '../controllers/middleware/authMiddleware.js';
@@ -188,8 +189,8 @@ routerLandlord.post('/otp/verify', verifyAuthOTP)
 
 routerLandlord.put('/add-tenant', addTenant)
 /* routerLandlord.put('/:_id',authMiddleware, updateLandlordNumber) */
-routerLandlord.put(('/update-password'),  updateLandlordPassword)
-routerLandlord.put(('/update-profil'), authMiddleware, updateProfil)
+routerLandlord.put(('/update-password'), authMiddleware, updateLandlordPassword)
+routerLandlord.put(('/update-profil/:id'), updateProfil,updateProfilInfo)
 routerLandlord.put(('/photo-profil'), authMiddleware, updateProfilImage)
 
 /**

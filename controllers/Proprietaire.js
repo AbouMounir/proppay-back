@@ -130,7 +130,7 @@ const sendAuthOTP = (async (req, res) => {
         const password = process.env.PASSWORD;
         const serviceid = process.env.SERVICEID;
         const sender = process.env.SENDER;
-        const msg = `Votre code de sécurité pour [Nom de l'application] est : ${otpCode}. Valable [durée, ex: 5 min]. Ne partagez pas.`
+        const msg = `Bonjour, votre code d'authentification pour Propay est ${otpCode}. Le code est valide pour 5 minutes. Ne le partagez pas. `
 
         // Stocker le timestamp actuel
         codeTimestamps[userNumberCount] = new Date();
@@ -331,7 +331,7 @@ const getLandlordTenants = (async (req, res) => {
     }
 })
 
-const updateProfil = (async (req, res) => {
+const updateProfil = (async (req, res,next) => {
     try {
         await upload('identity', 'landlords/pieces')(req, res, async function (error) {
             if (error) {
@@ -341,32 +341,22 @@ const updateProfil = (async (req, res) => {
                     error: error.message
                 })
             }
-            await Landlord.findOne({ landlordNumber: req.body.landlordNumber })
-                .then(async user => {
+            await Landlord.findById(req.params.id)
+            .then(async user => {
                     if (!user) {
                         return res.status(500).json({ message: "user n'existe pas" })
                     }
-                    user.landlordFirstname = req.body.landlordFirstname,
-                        user.landlordLastname = req.body.landlordLastname,
-                        user.landlordAdress = req.body.landlordAdress,
-                        user.identity = req.file.location
+                    user.identity = req.file.location
                     await user.save().catch(error => {
                         //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
                         res.json({
-                            message: "user not save",
+                            message: "user update profil not save",
                             error: error.message
                         })
                     });
-                    res.send(user)
-                })
-                .catch(error => {
-                    //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
-                    res.json({
-                        message: "findOne doesn't work",
-                        error: error.message
-                    })
-                })
-        })
+                }
+            )
+    })
     } catch (error) {
         //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
         res.json({
@@ -374,6 +364,34 @@ const updateProfil = (async (req, res) => {
             error: error.message
         })
     }
+    next()
+})
+
+const updateProfilInfo = (async (req,res) => {
+    await Landlord.findOne({ landlordNumber: req.body.landlordNumber })
+        .then(async user => {
+            if (!user) {
+                return res.status(500).json({ message: "user n'existe pas" })
+            }
+            user.landlordFirstname = req.body.landlordFirstname,
+            user.landlordLastname = req.body.landlordLastname,
+            user.landlordAdress = req.body.landlordAdress,
+            await user.save().catch(error => {
+                //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+                res.json({
+                    message: "user not save",
+                    error: error.message
+                })
+            });
+            res.send(user)
+        })
+        .catch(error => {
+            //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+            res.json({
+                message: "findOne doesn't work",
+                error: error.message
+            })
+    })
 })
 
 const updateProfilImage = (async (req, res) => {
@@ -568,5 +586,5 @@ const signinLandlord = (async (req, res) => {
     }
 })
 
-export { addTenant, confirmLandlordPassword, deleteLandlord, deleteTenant, getLandlord, getLandlordProprieties, getLandlordTenants, getLandlords, getPhotoProfil, sendAuthOTP, signinLandlord, signupLandlord, updateLandlordPassword, updateProfil, updateProfilImage, verifyAuthOTP };
+export { addTenant, confirmLandlordPassword, deleteLandlord, deleteTenant, getLandlord, getLandlordProprieties, getLandlordTenants, getLandlords, getPhotoProfil, sendAuthOTP, signinLandlord, signupLandlord, updateLandlordPassword, updateProfil, updateProfilImage, updateProfilInfo, verifyAuthOTP };
 
