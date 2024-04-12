@@ -4,6 +4,7 @@ const routerLandlord = express.Router()
 import {
     addTenant,
     confirmLandlordPassword,
+    confirmSignupLandlord,
     deleteLandlord,
     deleteTenant,
     getLandlord,
@@ -171,7 +172,7 @@ routerLandlord.post('/confirm/password/:landlordNumber', authMiddleware, confirm
  *         "200":
  *           description: otp send successfully
  */
-routerLandlord.post('/otp/send', sendAuthOTP)
+routerLandlord.post('/otp/send',authMiddleware, sendAuthOTP)
 
 /**
  * @swagger
@@ -185,7 +186,7 @@ routerLandlord.post('/otp/send', sendAuthOTP)
  *         "200":
  *           description: authentification successfully
  */
-routerLandlord.post('/otp/verify', verifyAuthOTP)
+routerLandlord.post('/otp/verify',authMiddleware, verifyAuthOTP, confirmSignupLandlord)
 
 routerLandlord.put('/add-tenant', addTenant)
 /* routerLandlord.put('/:_id',authMiddleware, updateLandlordNumber) */

@@ -14,6 +14,10 @@ const Landlord = mongoose.model('landlords', {
         type: String,
         required: [true, "Your landlord prename is required"],
     },
+    status: {
+        type: String,
+        default: "En cours d'inscription"
+    },
     landlordAdress: {
         type: String
     },

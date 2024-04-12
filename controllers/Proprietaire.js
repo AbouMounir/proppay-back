@@ -138,7 +138,7 @@ const sendAuthOTP = (async (req, res) => {
         // Incrémenter le compteur de demandes
         requestsCount[userNumberCount] = (requestsCount[userNumberCount] || 0) + 1;
 
-        // l'api externe de m target
+        // l'api externe de Mtarget
         const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${userNumber}&sender=${sender}&msg=${msg}`;
 
         await axios.post(apiExterne, {
@@ -159,12 +159,12 @@ const sendAuthOTP = (async (req, res) => {
                 res.send("sendAuthOTP => post on m target api catch");
             });
     } catch (error) {
-        log(400, "sendAuthOTP => try catch", req.body, error.message)
+        log(500, "sendAuthOTP => try catch", req.body, error.message)
         res.send("sendAuthOTP => try catch");
     }
 })
 
-const verifyAuthOTP = (async (req, res) => {
+const verifyAuthOTP = (async (req, res,next) => {
 
     const { otpCode, userNumber } = req.body;
     const userNumberCount = userNumber.substring(4)
@@ -178,12 +178,12 @@ const verifyAuthOTP = (async (req, res) => {
     }
 
     // Vérifier si le code est correct (à implémenter selon vos besoins)
-    if (isValidCode(otpSend, otpCode)) {
+    if (!(isValidCode(otpSend, otpCode))) {
         // Réinitialiser le compteur de demandes
         requestsCount[userNumberCount] = 0;
-        return res.send("Code de vérification valide.");
+        res.send("Code de vérification invalide.");
     }
-    res.send("Code de vérification invalide.");
+    next();
 });
 
 const ajouterPropriete = (async (req, res) => {
@@ -458,7 +458,7 @@ const updateLandlordPassword = (async (req, res) => {
                 }
             )
             .catch(error => {
-                log(400, "updateLandlordPassword => findOne catch", req.body, error.message)
+                log(500, "updateLandlordPassword => findOne catch", req.body, error.message)
                 res.json({
                     message: "findOne catch",
                     error: error.message
@@ -508,7 +508,6 @@ const signupLandlord = (async (req, res) => {
                     await landlord.save()
                         .then(() => {
                             const token = createToken(landlord._id);
-                            console.log("inscrit");
                             res.status(201).json({
                                 message: 'user enregistré !',
                                 data: landlord,
@@ -540,6 +539,19 @@ const signupLandlord = (async (req, res) => {
     }
 })
 
+const confirmSignupLandlord = (async (req,res) => {
+    try {
+        const user = await Landlord.findOne({landlordNumber: req.body.userNumber});
+        if (!user) {
+            res.send("user not find")
+        }
+        user.status = "Inscrit";
+        user.save()
+        res.send("Code de vérification valide et user inscrit.")
+    } catch (error) {
+        log(500, "ConfirmSignupLandlord => try catch", req.body, error.message)
+    }
+})
 const signinLandlord = (async (req, res) => {
     try {
         await Landlord.findOne({ landlordNumber: req.body.landlordNumber }).then(
@@ -586,5 +598,5 @@ const signinLandlord = (async (req, res) => {
     }
 })
 
-export { addTenant, confirmLandlordPassword, deleteLandlord, deleteTenant, getLandlord, getLandlordProprieties, getLandlordTenants, getLandlords, getPhotoProfil, sendAuthOTP, signinLandlord, signupLandlord, updateLandlordPassword, updateProfil, updateProfilImage, updateProfilInfo, verifyAuthOTP };
+export { addTenant, confirmLandlordPassword, confirmSignupLandlord, deleteLandlord, deleteTenant, getLandlord, getLandlordProprieties, getLandlordTenants, getLandlords, getPhotoProfil, sendAuthOTP, signinLandlord, signupLandlord, updateLandlordPassword, updateProfil, updateProfilImage, updateProfilInfo, verifyAuthOTP };
 
