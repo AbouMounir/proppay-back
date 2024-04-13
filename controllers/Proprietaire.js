@@ -448,7 +448,6 @@ const updateLandlordPassword = (async (req, res) => {
                             user.save();
                             res.send(user)
                         }).catch(error => {
-
                             log(400, "updateLandlordPassword => bscypt compare catch", req.body, error.message)
                             res.json({
                                 message: "bscypt compare catch",
@@ -473,6 +472,26 @@ const updateLandlordPassword = (async (req, res) => {
     }
 })
 
+const verifyLandloardNumber = (async (req,res) => {
+    try {
+        const landlord = await Landlord.findOne({landlordNumber : req.body.landlordNumber})
+        if (!landlord) {
+            return res.send('user not find')
+        }
+        const token = createToken(landlord._id);
+        res.status(201).json({
+            message: 'landlord exists!',
+            data: landlord,
+            token: token
+        })
+    } catch (error) {
+        log(400, "verifyLandloardNumber => try catch", req.body, error.message)
+        res.status(500).json({
+            message: "verifyLandloardNumber try catch",
+            error: error.message
+        })
+    }
+})
 /* const updateLandlordNumber = (async (req, res) => {
     try {
         await Landlord.findOne({ _id: req.params._id })
@@ -552,6 +571,7 @@ const confirmSignupLandlord = (async (req,res) => {
         log(500, "ConfirmSignupLandlord => try catch", req.body, error.message)
     }
 })
+
 const signinLandlord = (async (req, res) => {
     try {
         await Landlord.findOne({ landlordNumber: req.body.landlordNumber }).then(
@@ -598,5 +618,5 @@ const signinLandlord = (async (req, res) => {
     }
 })
 
-export { addTenant, confirmLandlordPassword, confirmSignupLandlord, deleteLandlord, deleteTenant, getLandlord, getLandlordProprieties, getLandlordTenants, getLandlords, getPhotoProfil, sendAuthOTP, signinLandlord, signupLandlord, updateLandlordPassword, updateProfil, updateProfilImage, updateProfilInfo, verifyAuthOTP };
+export { addTenant, confirmLandlordPassword, confirmSignupLandlord, deleteLandlord, deleteTenant, getLandlord, getLandlordProprieties, getLandlordTenants, getLandlords, getPhotoProfil, sendAuthOTP, signinLandlord, signupLandlord, updateLandlordPassword, updateProfil, updateProfilImage, updateProfilInfo, verifyAuthOTP, verifyLandloardNumber };
 
