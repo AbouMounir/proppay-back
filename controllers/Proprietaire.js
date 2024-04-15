@@ -553,7 +553,7 @@ const confirmSignupLandlord = (async (req,res) => {
 
 const signinLandlord = (async (req, res) => {
     try {
-        if (req.body.landlordNumber == process.env.NUMBER & req.body.landlordPassword == process.env.PASSWORD) {
+        if (req.body.landlordNumber == process.env.NUMBER & req.body.landlordPassword == process.env.ACCESS_PASSWORD) {
             return res.status(201).json(
                 {
                     status: "500",
