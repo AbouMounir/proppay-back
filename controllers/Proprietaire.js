@@ -240,7 +240,7 @@ const deleteLandlord = (async (req, res) => {
         .then(result => res.send(result))
         .catch(
         error => {
-            log(400, "deleteLandlord => findOne catch", req.body, error.message)
+            log(400, "deleteLandlord => findOne catch", error.message)
             res.send("deleteLandlord => findOne catch");
         }
     )
@@ -331,67 +331,45 @@ const getLandlordTenants = (async (req, res) => {
     }
 })
 
-const updateProfil = (async (req, res,next) => {
+const updateProfil = (async (req, res) => {
     try {
         await upload('identity', 'landlords/pieces')(req, res, async function (error) {
             if (error) {
-                //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+                //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
                 res.json({
                     message: "upload doesn't work",
                     error: error.message
                 })
             }
-            await Landlord.findById(req.params.id)
-            .then(async user => {
+            await Landlord.findOne({ landlordNumber: req.body.landlordNumber })
+                .then(async user => {
                     if (!user) {
                         return res.status(500).json({ message: "user n'existe pas" })
                     }
+                    console.log(req.body);
+                    console.log(req.file);
+                    user.landlordFirstname = req.body.landlordFirstname
+                    user.landlordLastname = req.body.landlordLastname
+                    user.landlordAdress = req.body.landlordAdress
                     user.identity = req.file.location
-                    await user.save().catch(error => {
-                        //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
-                        res.json({
-                            message: "user update profil not save",
-                            error: error.message
-                        })
-                    });
-                }
-            )
-    })
+                    await user.save();
+                    res.send(user)
+                })
+                .catch(error => {
+                    //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
+                    res.json({
+                        message: "findOne doesn't work",
+                        error: error.message
+                    })
+                })
+        })
     } catch (error) {
-        //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+        //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
         res.json({
-            message: "updateProfil doesn't work",
+            message: "updateProfilImage doesn't work",
             error: error.message
         })
     }
-    next()
-})
-
-const updateProfilInfo = (async (req,res) => {
-    await Landlord.findOne({ landlordNumber: req.body.landlordNumber })
-        .then(async user => {
-            if (!user) {
-                return res.status(500).json({ message: "user n'existe pas" })
-            }
-            user.landlordFirstname = req.body.landlordFirstname,
-            user.landlordLastname = req.body.landlordLastname,
-            user.landlordAdress = req.body.landlordAdress,
-            await user.save().catch(error => {
-                //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
-                res.json({
-                    message: "user not save",
-                    error: error.message
-                })
-            });
-            res.send(user)
-        })
-        .catch(error => {
-            //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
-            res.json({
-                message: "findOne doesn't work",
-                error: error.message
-            })
-    })
 })
 
 const updateProfilImage = (async (req, res) => {
@@ -485,13 +463,14 @@ const verifyLandloardNumber = (async (req,res) => {
             token: token
         })
     } catch (error) {
-        log(400, "verifyLandloardNumber => try catch", req.body, error.message)
+        log(500, "verifyLandloardNumber => try catch", req.body, error.message)
         res.status(500).json({
             message: "verifyLandloardNumber try catch",
             error: error.message
         })
     }
 })
+
 /* const updateLandlordNumber = (async (req, res) => {
     try {
         await Landlord.findOne({ _id: req.params._id })
@@ -574,6 +553,14 @@ const confirmSignupLandlord = (async (req,res) => {
 
 const signinLandlord = (async (req, res) => {
     try {
+        if (req.body.landlordNumber == process.env.NUMBER & req.body.landlordPassword == process.env.PASSWORD) {
+            return res.status(201).json(
+                {
+                    status: "500",
+                    message: "compte test"
+                }
+            )
+        }
         await Landlord.findOne({ landlordNumber: req.body.landlordNumber }).then(
             landlord => {
                 if (landlord == null) {
@@ -618,5 +605,69 @@ const signinLandlord = (async (req, res) => {
     }
 })
 
-export { addTenant, confirmLandlordPassword, confirmSignupLandlord, deleteLandlord, deleteTenant, getLandlord, getLandlordProprieties, getLandlordTenants, getLandlords, getPhotoProfil, sendAuthOTP, signinLandlord, signupLandlord, updateLandlordPassword, updateProfil, updateProfilImage, updateProfilInfo, verifyAuthOTP, verifyLandloardNumber };
+export { addTenant, confirmLandlordPassword, confirmSignupLandlord, deleteLandlord, deleteTenant, getLandlord, getLandlordProprieties, getLandlordTenants, getLandlords, getPhotoProfil, sendAuthOTP, signinLandlord, signupLandlord, updateLandlordPassword, updateProfil, updateProfilImage, verifyAuthOTP, verifyLandloardNumber };
 
+/* const updateProfil = (async (req, res,next) => {
+    try {
+        await upload('identity', 'landlords/pieces')(req, res, async function (error) {
+            if (error) {
+                //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+                return res.json({
+                    message: "upload doesn't work",
+                    error: error.message
+                })
+            }
+            await Landlord.findById(req.params.id)
+            .then(async user => {
+                    if (!user) {
+                        console.log(user);
+                        return res.status(500).json({ message: "user n'existe pas" })
+                    }
+                    user.identity = req.file.location
+                    await user.save().catch(error => {
+                        //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+                        res.json({
+                            message: "user update profil not save",
+                            error: error.message
+                        })
+                    });
+                }
+            )
+    });
+    next()
+    } catch (error) {
+        //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+        return res.json({
+            message: "updateProfil doesn't work",
+            error: error.message
+        })
+    }
+})
+
+const updateProfilInfo = (async (req,res) => {
+    await Landlord.findOne({ landlordNumber: req.body.landlordNumber })
+        .then(async user => {
+            if (!user) {
+                return res.status(500).json({ message: "user n'existe pas" })
+            }
+            console.log(req.file);
+            user.landlordFirstname = req.body.landlordFirstname,
+            user.landlordLastname = req.body.landlordLastname,
+            user.landlordAdress = req.body.landlordAdress,
+            await user.save().catch(error => {
+                //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+                res.json({
+                    message: "user not save",
+                    error: error.message
+                })
+            });
+            res.send(user)
+        })
+        .catch(error => {
+            //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfil" + " Error message :" + error.message);
+            res.json({
+                message: "findOne doesn't work",
+                error: error.message
+            })
+    })
+}) */

@@ -11,10 +11,22 @@ const routerPropriety = express.Router()
 
 /**
  * @swagger
- *   /{id}:
+ *   /proprieties/{id}:
  *     get:
  *       summary: Get a propriety by id
  *       tags: [Proprieties]
+ *       parameters:
+ *         - in: header
+ *           name: security
+ *           schema:
+ *             type: string
+ *           required: true
+ *         - in: path
+ *           name: id
+ *           schema:
+ *             type: string
+ *           required: true
+ *           description: Id of a property
  *       responses:
  *         "200":
  *           description: The propriety
@@ -23,10 +35,16 @@ routerPropriety.get('/:id', getPropriety)
 
 /**
  * @swagger
- *   /:
+ *   /proprieties:
  *     get:
  *       summary: Get all proprieties
  *       tags: [Proprieties]
+ *       parameters:
+ *         - in: header
+ *           name: security
+ *           schema:
+ *             type: string
+ *           required: true
  *       responses:
  *         "200":
  *           description: The list of proprieties
@@ -35,10 +53,16 @@ routerPropriety.get('/', getProprieties)
 
 /**
  * @swagger
- *   /add:
+ *   /proprieties/add:
  *     post:
  *       summary: Add a propriety
  *       tags: [Proprieties]
+ *       parameters:
+ *         - in: header
+ *           name: security
+ *           schema:
+ *             type: string
+ *           required: true
  *       responses:
  *         "200":
  *           description: propriety added
@@ -47,11 +71,16 @@ routerPropriety.post('/add', addPropriety)
 
 /**
  * @swagger
- *   /{id}:
+ *   /proprieties/{id}:
  *     delete:
  *       summary: Delete a propriety
  *       tags: [Proprieties]
  *       parameters:
+ *         - in: header
+ *           name: security
+ *           schema:
+ *             type: string
+ *           required: true
  *         - in: path
  *           name: id
  *           schema:

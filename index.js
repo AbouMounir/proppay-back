@@ -23,7 +23,7 @@ connectDb();
 app.use('/', routerImage)
 app.use('/users/tenants', routerTenant)
 app.use('/users/landlords', routerLandlord)
-app.use('/proprieties', authMiddleware, routerPropriety)
+app.use('/proprieties',  routerPropriety)
 app.use('/notifications', authMiddleware, routerNotification)
 
 const options = {
