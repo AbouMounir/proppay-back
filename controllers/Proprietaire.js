@@ -33,6 +33,9 @@ let codeTimestamps = {};
 
 const addTenant = (async (req, res) => {
     try {
+
+        const totalOfUnpaidRents = parseInt(req.body.nbOfUnpaidRents) * parseInt(req.body.tenantRent)
+        console.log(`${parseInt(req.body.nbOfUnpaidRents)} * ${parseInt(req.body.tenantRent)} = ${totalOfUnpaidRents}`);
         const locataire = {
             tenantNumber: req.body.tenantNumber,
             proprietyName: req.body.proprietyName,
@@ -40,7 +43,9 @@ const addTenant = (async (req, res) => {
             tenantLastname: req.body.tenantLastname,
             appartementNumber: req.body.appartementNumber,
             tenantRent: req.body.tenantRent,
-            appartementType: req.body.appartementType
+            appartementType: req.body.appartementType,
+            nbOfUnpaidRents: req.body.nbOfUnpaidRents,
+            totalOfUnpaidRents: totalOfUnpaidRents.toString()
         }
 
         const landlord = await Landlord.findOne({ landlordNumber: req.body.landlordNumber });
@@ -65,7 +70,10 @@ const addTenant = (async (req, res) => {
             log(400, "addTenant => propriety save catch", req.body, error.message)
             res.status(500).json({ message: 'propriety save catch' });
         });
-        res.status(200).json({ message: 'Élément ajouté avec succès' });
+        res.status(200).json({
+            message: 'Élément ajouté avec succès',
+            data: propriety.listOfTenants
+        });
     } catch (error) {
         log(400, "addTenant => try catch", req.body, error.message)
         res.status(500).json({ message: 'Erreur lors de l\'ajout de l\'élément' });
