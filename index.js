@@ -21,13 +21,13 @@ app.use(cors("*"));
 dotenv.config({ path: './config/.env' })
 connectDb();
 
-// set the view engine to ejs
+/* // set the view engine to ejs
 app.set('view engine', 'ejs');
 
 // index page
 app.get('/', function(req, res) {
     res.render('templates/factures');
-});
+}); */
 
 // the routes of the app
 app.use('/', routerImage)

@@ -1,4 +1,3 @@
-import axios from 'axios';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path, { dirname } from 'path';
