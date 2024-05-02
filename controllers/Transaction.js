@@ -1,3 +1,4 @@
+import axios from 'axios';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path, { dirname } from 'path';
@@ -184,7 +185,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
         const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\nNous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\nVous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${do_url}.\n L'équipe Propay vous remercie !`
         
         const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumber}&sender=${sender}&msg=${msg}`;
-    
+        
         await axios.post(apiExterne, {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
