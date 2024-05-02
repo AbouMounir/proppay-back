@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
-import winston, { format } from "winston";
+import winston from "winston";
 import 'winston-mongodb';
 
 dotenv.config({ path: './config/.env' })
 
-const transport3 = new winston.transports.MongoDB({
+/* const transport3 = new winston.transports.MongoDB({
     db: process.env.MONGODB_URI,
     options: {
         useUnifiedTopology: true
@@ -12,13 +12,13 @@ const transport3 = new winston.transports.MongoDB({
     level: 'error',
     collection: 'errors',
     format: format.combine(format.timestamp(), format.json())
-});
+}); */
 
 const logger = winston.createLogger({
     level: "debug",
     format: winston.format.json(),
     transports: [
-        transport3,
+        //transport3,
         new winston.transports.Console(),
     ]
 });

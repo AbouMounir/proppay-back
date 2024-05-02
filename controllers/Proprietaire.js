@@ -17,7 +17,7 @@ const createToken = (userId) => {
     });
 };
 
-// Fonction pour valider le code (à implémenter selon vos besoins)
+// Fonction pour valider le code (à implémenter selon vos besoins) || tenant.tenantNumber !== req.body.tenantNumber
 function isValidCode(userId, enteredCode) {
     if (userId == enteredCode) {
         return true;
@@ -35,7 +35,6 @@ const addTenant = (async (req, res) => {
     try {
 
         const totalOfUnpaidRents = parseInt(req.body.nbOfUnpaidRents) * parseInt(req.body.tenantRent)
-        console.log(`${parseInt(req.body.nbOfUnpaidRents)} * ${parseInt(req.body.tenantRent)} = ${totalOfUnpaidRents}`);
         const locataire = {
             tenantNumber: req.body.tenantNumber,
             proprietyName: req.body.proprietyName,
@@ -91,13 +90,11 @@ const deleteTenant = (async (req, res) => {
             })
         }
 
-        const tenantExist = listOfTenantsP.reduce(tenant => tenant.get('appartementNumber') !== req.body.appartementNumber || tenant.get('tenantNumber') !== req.body.tenantNumber);
-
         const listOfTenantsP = propriety.listOfTenants
         const listOfTenantsL = landlord.listOfTenants
 
-        const newListOfTenantsP = listOfTenantsP.filter(tenant => tenant.get('appartementNumber') !== req.body.appartementNumber || tenant.get('tenantNumber') !== req.body.tenantNumber);
-        const newListOfTenantsL = listOfTenantsL.filter(tenant => tenant.get('appartementNumber') !== req.body.appartementNumber);
+        const newListOfTenantsP = listOfTenantsP.filter(tenant => tenant.appartementNumber !== req.body.appartementNumber);
+        const newListOfTenantsL = listOfTenantsL.filter(tenant => tenant.appartementNumber !== req.body.appartementNumber);
 
         propriety.listOfTenants = newListOfTenantsP
         landlord.listOfTenants = newListOfTenantsL
@@ -193,30 +190,6 @@ const verifyAuthOTP = (async (req, res,next) => {
     }
     next();
 });
-
-const ajouterPropriete = (async (req, res) => {
-    try {
-        const proprietyId = req.params.LandlordNumber + '-' + req.body.ProprieteName
-        const propriety = {
-            ProprietyName: req.body.ProprietyName,
-            ProprietyAdress: req.body.ProprietyAdress,
-            ProprietyType: req.body.ProprietyType,
-            ProprietyImages: req.body.ProprietyImages,
-            proprietyOccupation: req.body.proprietyOccupation,
-            proofOfPropriety: req.body.proofOfPropriety
-        }
-
-        const landlord = await Landlord.findOne({ landlordNumber: req.params.landlordNumber });
-        landlord.listeLocataire.set(proprietyId, propriety)
-        await landlord.save();
-
-        res.status(200).json({ message: 'Élément ajouté avec succès' });
-        console.log(landlord.listeLocataire);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Erreur lors de l\'ajout de l\'élément' });
-    }
-})
 
 const confirmLandlordPassword = (async (req, res) => {
     try {
@@ -613,9 +586,11 @@ const signinLandlord = (async (req, res) => {
     }
 })
 
+
 export { addTenant, confirmLandlordPassword, confirmSignupLandlord, deleteLandlord, deleteTenant, getLandlord, getLandlordProprieties, getLandlordTenants, getLandlords, getPhotoProfil, sendAuthOTP, signinLandlord, signupLandlord, updateLandlordPassword, updateProfil, updateProfilImage, verifyAuthOTP, verifyLandloardNumber };
 
 /* const updateProfil = (async (req, res,next) => {
+
     try {
         await upload('identity', 'landlords/pieces')(req, res, async function (error) {
             if (error) {

@@ -1,8 +1,14 @@
+import 'form-data';
+import fs from 'fs';
 import mimeTypes from 'mime-types';
 import multer from "multer";
-import path from "path";
+import path, { dirname } from "path";
+import { fileURLToPath } from 'url';
 import Image from '../models/Image.js';
 import { uploadDo } from './middleware/createOceanFolderMiddleware.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Configurations Multer pour le stockage des fichiers temporaires
 const storage = multer.memoryStorage(
@@ -19,7 +25,7 @@ const storage = multer.memoryStorage(
 
 const postImage = (async (req, res) => {
     try {
-        await uploadDo('profile','photos de profil')(req, res, async function (error) {
+        await uploadDo('facture', 'factures')(req, res, async function (error) {
             if (error) {
                 console.log(error);
             }
@@ -61,6 +67,32 @@ const postImage = (async (req, res) => {
     }
 });
 
+const postImage1 = (async () => {
+    try {
+        const form = new FormData();
+
+        // read the file and append into the FormData instance.
+        const filepath = path.join(__dirname, '../mypdf.pdf');
+        form.append("file", fs.createReadStream(filepath));
+        console.log(form);
+        console.log("--------------------------------");
+        // Call the middleware to upload the file.
+        await new Promise((resolve, reject) => {
+            uploadDo('facture', 'factures')(form, function (error) {
+                console.log(form);
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve();
+                }
+            });
+        });
+        console.log("filllllllllllllllllllllllllllle");
+    } catch (error) {
+        console.error(error);
+    }
+});
+
 const getImage = (async (req, res) => {
     try {
         const image = await Image.findById(req.params.id);
@@ -73,7 +105,7 @@ const getImage = (async (req, res) => {
         const mimeType = mimeTypes.lookup(fileExtension) || 'application/octet-stream';
 
         res.set('Content-Type', mimeType); // Assurez-vous de définir le type MIME approprié
-        
+
         res.send(image);
     } catch (error) {
         console.error(error);

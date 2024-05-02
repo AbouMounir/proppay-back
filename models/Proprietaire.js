@@ -27,12 +27,16 @@ const Landlord = mongoose.model('landlords', {
     },
     identity: String,
     listOfTenants: {
-        type: [Map],
+        type: [Object],
         default: []
     },
     listOfProprieties: {
         type: [String],
         default: []
+    },
+    count: {
+        type: Number,
+        default: 0
     }
 });
 
