@@ -122,7 +122,7 @@ const createTransaction = async (req, res) => {
 
         res.status(200).json({
             message: 'Transaction ajouté avec succès',
-            //data: transaction
+            data: transaction
         });
     } catch (error) {
         console.error(error);
@@ -225,6 +225,27 @@ const getTransactionsInfos = async (req, res) => {
     }
 };
 
+const getTransactionInfo = async (req, res) => {
+    try {
+        const transaction = await Transaction.findById(req.params.id);
+        const landlordNumber = transaction.landlord;
+        const landlord = await Landlord.findOne({ landlordNumber });
+        const tenantNumber = transaction.tenant;
+        const tenant = landlord.listOfTenants.find(tenant => tenant.tenantNumber === tenantNumber);
+        const tenantName = `${tenant.tenantLastname} ${tenant.tenantFirstname}`;
+        res.status(500).json({
+            message: "the info about a transaction",
+            data: { transaction, tenantName }
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "Error in the try component",
+            data: error.message
+        });
+    }
+};
+
 const getUploadLink = async (req,res) => {
     const transaction = await Transaction.findById(req.params.id)
     res.send(transaction.paymentReceipt)
@@ -234,5 +255,5 @@ const getUploadLink = async (req,res) => {
 // sendRentReceipt()
 
 
-export { createTransaction, getTransactionsInfos, getUploadLink, sendPaymentLink, sendRentReceipt };
+export { createTransaction, getTransactionInfo, getTransactionsInfos, getUploadLink, sendPaymentLink, sendRentReceipt };
 

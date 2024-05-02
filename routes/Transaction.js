@@ -1,5 +1,5 @@
 import express from 'express';
-import { createTransaction, getTransactionsInfos, getUploadLink, sendPaymentLink } from '../controllers/Transaction.js';
+import { createTransaction, getTransactionInfo, getTransactionsInfos, getUploadLink, sendPaymentLink } from '../controllers/Transaction.js';
 const routerTransaction = express.Router()
 
 /**
@@ -69,6 +69,7 @@ const routerTransaction = express.Router()
  */
 routerTransaction.post('/send', sendPaymentLink)
 routerTransaction.post('/send/factures', createTransaction)
+routerTransaction.get('/info/:id',getTransactionInfo)
 routerTransaction.get('/infos',getTransactionsInfos)
 routerTransaction.get('/upload/receipt/:id',getUploadLink)
 
