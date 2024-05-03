@@ -339,46 +339,116 @@ const getLandlordTenants = (async (req, res) => {
     }
 })
 
-const updateProfil = (async (req, res) => {
+// const updateProfil = (async (req, res) => {
+//     try {
+//         await upload('identity', 'landlords/pieces')(req, res, async function (error) {
+//             if (error) {
+//                 //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
+//                 res.json({
+//                     message: "upload doesn't work",
+//                     error: error.message
+//                 })
+//             }
+//             console.log(req.body)
+//             console.log(req.params.id)
+//             await Landlord.findOne({ _id: req.params.id })
+//                 .then(async user => {
+//                     if (!user) {
+//                         return res.status(404).json({ message: "user n'existe pas" })
+//                     }
+//                     console.log(req.body);
+//                     console.log(req.file);
+//                     user.landlordFirstname = req.body.landlordFirstname
+//                     user.landlordLastname = req.body.landlordLastname
+//                     user.landlordAdress = req.body.landlordAdress
+//                     user.identity = req.file.location
+//                     await user.save();
+//                     res.send(user)
+//                 })
+//                 .catch(error => {
+//                     //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
+//                     res.json({
+//                         message: "findOne doesn't work",
+//                         error: error.message
+//                     })
+//                 })
+//         })
+//     } catch (error) {
+//         //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
+//         res.json({
+//             message: "updateProfilImage doesn't work",
+//             error: error.message
+//         })
+//     }
+// })
+
+
+const updateProfil = async (req, res) => {
     try {
         await upload('identity', 'landlords/pieces')(req, res, async function (error) {
             if (error) {
-                //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
-                res.json({
-                    message: "upload doesn't work",
+                return res.status(400).json({
+                    message: "Erreur lors de l'envoi du fichier",
                     error: error.message
-                })
+                });
             }
-            await Landlord.findOne({ landlordNumber: req.body.landlordNumber })
-                .then(async user => {
-                    if (!user) {
-                        return res.status(500).json({ message: "user n'existe pas" })
-                    }
-                    console.log(req.body);
-                    console.log(req.file);
-                    user.landlordFirstname = req.body.landlordFirstname
-                    user.landlordLastname = req.body.landlordLastname
-                    user.landlordAdress = req.body.landlordAdress
-                    user.identity = req.file.location
-                    await user.save();
-                    res.send(user)
-                })
-                .catch(error => {
-                    //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
-                    res.json({
-                        message: "findOne doesn't work",
-                        error: error.message
+
+            // Si aucun fichier n'a été envoyé, traiter les autres champs normalement
+            if (!req.file) {
+                console.log(req.body);
+                console.log(req.params.id);
+                await Landlord.findOne({ _id: req.params.id })
+                    .then(async user => {
+                        if (!user) {
+                            return res.status(404).json({ message: "Utilisateur non trouvé" });
+                        }
+                        console.log(req.body);
+                        user.landlordFirstname = req.body.landlordFirstname || user.landlordFirstname;
+                        user.landlordLastname = req.body.landlordLastname || user.landlordLastname;
+                        user.landlordAdress = req.body.landlordAdress || user.landlordAdress;
+                        await user.save();
+                        res.send(user);
                     })
-                })
-        })
+                    .catch(error => {
+                        res.status(400).json({
+                            message: "Erreur lors de la recherche de l'utilisateur",
+                            error: error.message
+                        });
+                    });
+            } else {
+                // Si un fichier a été envoyé, mettre à jour le champ "identity" avec son emplacement
+                console.log(req.body);
+                console.log(req.file);
+                await Landlord.findOne({ _id: req.params.id })
+                    .then(async user => {
+                        if (!user) {
+                            return res.status(404).json({ message: "Utilisateur non trouvé" });
+                        }
+                        console.log(req.body);
+                        user.landlordFirstname = req.body.landlordFirstname || user.landlordFirstname;
+                        user.landlordLastname = req.body.landlordLastname || user.landlordLastname;
+                        user.landlordAdress = req.body.landlordAdress || user.landlordAdress;
+                        user.identity = req.file.location;
+                        await user.save();
+                        res.send(user);
+                    })
+                    .catch(error => {
+                        res.status(400).json({
+                            message: "Erreur lors de la recherche de l'utilisateur",
+                            error: error.message
+                        });
+                    });
+            }
+        });
     } catch (error) {
-        //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
-        res.json({
-            message: "updateProfilImage doesn't work",
+        res.status(400).json({
+            message: "Erreur lors de la mise à jour du profil",
             error: error.message
-        })
+        });
     }
-})
+};
+
+
 
 const updateProfilImage = (async (req, res) => {
     try {
@@ -390,10 +460,11 @@ const updateProfilImage = (async (req, res) => {
                     error: error.message
                 })
             }
-            await Landlord.findOne({ landlordNumber: req.body.landlordNumber })
+            console.log("user id" +  req.userId)
+            await Landlord.findOne({ _id: req.params.id })
                 .then(async user => {
                     if (!user) {
-                        return res.status(500).json({ message: "user n'existe pas" })
+                        return res.status(404).json({ message: "user n'existe pas" })
                     }
                     console.log(req.file);
                     user.profilImage = req.file.location

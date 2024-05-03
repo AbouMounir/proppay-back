@@ -635,7 +635,7 @@ routerLandlord.put(('/update-profil/:id'),authMiddleware, updateProfil)
  *          description: Some error happened
  *
  */
-routerLandlord.put(('/photo-profil'), authMiddleware, updateProfilImage)
+routerLandlord.put(('/photo-profil/:id'), authMiddleware, updateProfilImage)
 
 /**
  * @swagger
