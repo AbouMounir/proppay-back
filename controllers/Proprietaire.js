@@ -370,7 +370,7 @@ const updateProfil = async (req, res) => {
             if (!req.file) {
                 console.log(req.body);
                 console.log(req.params.id);
-                await Landlord.findOne({ _id: req.params.id })
+                await Landlord.findOne({ _id: req.userId })
                     .then(async user => {
                         if (!user) {
                             return res.status(404).json({ message: "Utilisateur non trouvé" });
@@ -392,7 +392,7 @@ const updateProfil = async (req, res) => {
                 // Si un fichier a été envoyé, mettre à jour le champ "identity" avec son emplacement
                 console.log(req.body);
                 console.log(req.file);
-                await Landlord.findOne({ _id: req.params.id })
+                await Landlord.findOne({ _id: req.userId  })
                     .then(async user => {
                         if (!user) {
                             return res.status(404).json({ message: "Utilisateur non trouvé" });
@@ -434,7 +434,7 @@ const updateProfilImage = (async (req, res) => {
                 })
             }
             console.log("user id" +  req.userId)
-            await Landlord.findOne({ _id: req.params.id })
+            await Landlord.findOne({ _id: req.userId  })
                 .then(async user => {
                     if (!user) {
                         return res.status(404).json({ message: "user n'existe pas" })
