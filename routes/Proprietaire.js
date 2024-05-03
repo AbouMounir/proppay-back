@@ -680,7 +680,7 @@ routerLandlord.delete('/:id',authMiddleware, deleteLandlord)
  *                  "tenantNumber": "0543226871"
  *                  "appartementNumber": "R1-03"
  */
-routerLandlord.delete('/delete-tenant/:id',authMiddleware, deleteTenant)
+routerLandlord.delete('/delete-tenant/:id', deleteTenant)
 
 
 export default routerLandlord

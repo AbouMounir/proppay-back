@@ -26,7 +26,7 @@ const Propriety = mongoose.model('proprietes', {
     occupiedUnits: String,
     availableUnits: String,
     listOfTenants: {
-        type: [Map],
+        type: [Object],
         default: []
     },
 });
