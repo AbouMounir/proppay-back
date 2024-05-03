@@ -73,6 +73,29 @@ routerTransaction.get('/info/:id',getTransactionInfo)
 routerTransaction.get('/infos',getTransactionsInfos)
 routerTransaction.get('/upload/receipt/:id',getUploadLink)
 
+
+routerTransaction.post('/shorten', async (req, res) => {
+    const longUrl = req.body.longUrl;
+
+    try {
+        const response = await fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.shorturl) {
+                res.json({ shortUrl: data.shorturl });
+            } else {
+                throw new Error('Impossible de raccourcir le lien');
+            }
+        } else {
+            throw new Error('Erreur lors du raccourcissement du lien');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        res.status(500).json({ error: 'Une erreur est survenue lors du traitement de votre demande' });
+    }
+});
+
 /**
  * @swagger
  *   /proprieties/{id}:
