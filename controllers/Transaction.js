@@ -199,11 +199,39 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
         return do_url
 }
 
+const getLandlordTransactionsInfos = async (req, res) => {
+    try {
+        let transactionsInfo = [];
+        console.log("user id" +  req.userId)
+        const landlord = await Landlord.findOne({_id : req.userId})
+        console.log(landlord);
+        const transactions = await Transaction.find({});
+        for (const transaction of transactions) {
+            const landlordNumber = transaction.landlord;
+            if (landlordNumber == landlord.landlordNumber) {
+                const tenantNumber = transaction.tenant;
+                const tenant = landlord.listOfTenants.find(tenant => tenant.tenantNumber === tenantNumber);
+                const tenantName = `${tenant.tenantLastname} ${tenant.tenantFirstname}`;
+                transactionsInfo.push({ transaction, tenantName })
+            }
+        }
+        res.status(500).json({
+            message: "the info about a transaction",
+            data: transactionsInfo
+        });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({
+            message: "Error in the try component",
+            data: error.message
+        });
+    }
+};
+
 const getTransactionsInfos = async (req, res) => {
     try {
         let transactionsInfo = [];
         const transactions = await Transaction.find({});
-        
         for (const transaction of transactions) {
             const landlordNumber = transaction.landlord;
             const landlord = await Landlord.findOne({ landlordNumber });
@@ -255,5 +283,5 @@ const getUploadLink = async (req,res) => {
 // sendRentReceipt()
 
 
-export { createTransaction, getTransactionInfo, getTransactionsInfos, getUploadLink, sendPaymentLink, sendRentReceipt };
+export { createTransaction, getLandlordTransactionsInfos, getTransactionInfo, getTransactionsInfos, getUploadLink, sendPaymentLink, sendRentReceipt };
 

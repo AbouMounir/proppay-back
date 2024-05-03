@@ -1,7 +1,5 @@
 import Notification from "../models/Notification.js";
 
-
-
 const createNotification = (async(req,res) => {
     try {
         const notification = await new Notification({
