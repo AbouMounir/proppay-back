@@ -1,4 +1,22 @@
+import nodeCron from 'node-cron';
 import Notification from "../models/Notification.js";
+import Landlord from '../models/Proprietaire.js';
+
+const task1 = nodeCron.schedule('30 5 14 3 * *', async () => {
+    try {
+        const landlords = await Landlord.find({})
+        for (const landlord of landlords){
+            const notification = await new Notification({
+                titleNotification: "Envoi des liens de paiement aux locataires",
+                contentNotification: `Bonjour ${landlord.landlordLastname} ${landlord.landlordFirstname},\n J'espère que vous allez bien. Je voulais juste vous informer que j'ai envoyé les liens de paiement des loyers aux locataires pour le mois en cours.\n Tous les détails nécessaires sont inclus dans les messages envoyés.\n N'hésitez pas à me contacter si vous avez des questions ou des préoccupations à ce sujet.\n Cordialement,[Votre nom]`,
+            })
+            await notification.save()
+        }
+        console.log("les notifications sont enregistrés");
+    } catch (error) {
+        console.log(error);
+    }
+})
 
 const createNotification = (async(req,res) => {
     try {

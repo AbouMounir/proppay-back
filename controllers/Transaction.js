@@ -1,4 +1,3 @@
-import axios from 'axios';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path, { dirname } from 'path';
@@ -17,8 +16,8 @@ const __dirname = dirname(__filename);
 var filePath = "";
 
 const monthes = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Decembre"];
-const days = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"]
-// the elements of body 
+const days = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"]
+// the elements of body
 const userName = process.env.USER_NAME;
 const password = process.env.PASSWORD;
 const serviceid = process.env.SERVICEID;
@@ -93,17 +92,22 @@ const createTransaction = async (req, res) => {
         if (!landlord) {
             res.send("landlord doesn't exist")
         }
-        const tenant = landlord.listOfTenants.reduce(tenantNumber => tenantNumber == req.body.tenantNumber)
+        const tenant = landlord.listOfTenants.filter(tenant => tenant.tenantNumber == req.body.tenantNumber)
+        console.log(tenant);
         if (!tenant) {
             res.send("tenant doesn't exist")
         }
-        const propriety_id = landlord.listOfProprieties.reduce(proprietyName => proprietyName == tenant.proprietyName)
-        const propriety = await Propriety.findOne({proprietyId: propriety_id})
+        console.log(landlord.listOfProprieties);
+        console.log(landlord.landlordNumber+"-"+tenant[0].proprietyName);
+        const proprietyIdBody = landlord.landlordNumber+"-"+tenant[0].proprietyName
+        const propriety_id = landlord.listOfProprieties.filter(proprietyId => proprietyId == proprietyIdBody)
+        console.log(propriety_id[0]);
+        const propriety = await Propriety.findOne({proprietyId: propriety_id[0]})
         if (!propriety) {
             res.send("propriety doesn't exist")
         }
         
-        await sendRentReceipt(landlord.landlordFirstname,landlord.landlordLastname,landlord.landlordNumber,tenant.tenantFirstname,tenant.tenantLastname,tenant.tenantNumber,req.body.paymentMethod,req.body.amount,tenant.appartementType,tenant.proprietyName,propriety.proprietyAdress).then(data => do_url = data)
+        await sendRentReceipt(landlord.landlordFirstname,landlord.landlordLastname,landlord.landlordNumber,tenant[0].tenantFirstname,tenant[0].tenantLastname,tenant[0].tenantNumber,req.body.paymentMethod,req.body.amount,tenant[0].appartementType,tenant[0].proprietyName,propriety.proprietyAdress).then(data => do_url = data)
         
         const transaction = await new Transaction({
             tenant: req.body.tenantNumber,
@@ -159,7 +163,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
     
         const template = fs.readFileSync(path.join(__dirname, '../propay-facture/index.html'), 'utf-8');
         const options = { format: 'Letter' };
-        const document = {
+        const document = await {
             html: template,
             data: {
                 datas : data,
@@ -167,7 +171,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             path: path.join(__dirname, '../template.pdf')
         }
         
-        pdf.create(document, {
+        await pdf.create(document, {
             childProcessOptions: {
                 env: {
                     OPENSSL_CONF: '/dev/null',
@@ -186,7 +190,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
         
         const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumber}&sender=${sender}&msg=${msg}`;
         
-        await axios.post(apiExterne, {
+        /* await axios.post(apiExterne, {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
             }
@@ -195,7 +199,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             .catch(error => {
                 log(400, "sendRentReceipt => post on m target api catch", req.body, error.message)
                 return res.send('post on m target api catch')
-        });
+        }); */
         return do_url
 }
 
