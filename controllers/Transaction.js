@@ -85,6 +85,9 @@ const schedulePaymentLink = () => {
     setInterval(sendPaymentLink, 30 * 24 * 60 * 60 * 1000); // Vérifiez toutes les 30 jours
 };
 
+
+
+
 const createTransaction = async (req, res) => {
     try {
         let do_url = ""
