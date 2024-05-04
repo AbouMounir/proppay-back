@@ -74,11 +74,10 @@ routerTransaction.get('/info/:id',getTransactionInfo)
 routerTransaction.get('/landlord/infos',authMiddleware, getLandlordTransactionsInfos)
 routerTransaction.get('/infos',getTransactionsInfos)
 routerTransaction.get('/upload/receipt/:id',getUploadLink)
-
-
+//routerTransaction.post('/shorten',shortenUrl)
+//routerTransaction.get('/:shortUrl',redirectToOriginalUrl)
 routerTransaction.post('/shorten', async (req, res) => {
     const longUrl = req.body.longUrl;
-
     try {
         const response = await fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`);
         

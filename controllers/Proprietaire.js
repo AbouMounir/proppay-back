@@ -312,50 +312,6 @@ const getLandlordTenants = (async (req, res) => {
     }
 })
 
-// const updateProfil = (async (req, res) => {
-//     try {
-//         await upload('identity', 'landlords/pieces')(req, res, async function (error) {
-//             if (error) {
-//                 //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
-//                 res.json({
-//                     message: "upload doesn't work",
-//                     error: error.message
-//                 })
-//             }
-//             console.log(req.body)
-//             console.log(req.params.id)
-//             await Landlord.findOne({ _id: req.params.id })
-//                 .then(async user => {
-//                     if (!user) {
-//                         return res.status(404).json({ message: "user n'existe pas" })
-//                     }
-//                     console.log(req.body);
-//                     console.log(req.file);
-//                     user.landlordFirstname = req.body.landlordFirstname
-//                     user.landlordLastname = req.body.landlordLastname
-//                     user.landlordAdress = req.body.landlordAdress
-//                     user.identity = req.file.location
-//                     await user.save();
-//                     res.send(user)
-//                 })
-//                 .catch(error => {
-//                     //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
-//                     res.json({
-//                         message: "findOne doesn't work",
-//                         error: error.message
-//                     })
-//                 })
-//         })
-//     } catch (error) {
-//         //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
-//         res.json({
-//             message: "updateProfilImage doesn't work",
-//             error: error.message
-//         })
-//     }
-// })
-
-
 const updateProfil = async (req, res) => {
     try {
         await upload('identity', 'landlords/pieces')(req, res, async function (error) {
@@ -369,7 +325,6 @@ const updateProfil = async (req, res) => {
             // Si aucun fichier n'a été envoyé, traiter les autres champs normalement
             if (!req.file) {
                 console.log(req.body);
-                console.log(req.params.id);
                 await Landlord.findOne({ _id: req.userId })
                     .then(async user => {
                         if (!user) {
@@ -420,8 +375,6 @@ const updateProfil = async (req, res) => {
         });
     }
 };
-
-
 
 const updateProfilImage = (async (req, res) => {
     try {

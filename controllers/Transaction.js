@@ -7,6 +7,7 @@ import Landlord from '../models/Proprietaire.js';
 import Propriety from '../models/Propriete.js';
 import Transaction from '../models/Transaction.js';
 import { uploadTemplate } from './middleware/createOceanFolderMiddleware.js';
+import { shortenUrl } from './middleware/generateUrl.js';
 import log from './middleware/winston.js';
 
 dotenv.config({ path: './config/.env' })
@@ -22,6 +23,31 @@ const userName = process.env.USER_NAME;
 const password = process.env.PASSWORD;
 const serviceid = process.env.SERVICEID;
 const sender = process.env.SENDER;
+
+
+/* // Database to store mappings between short URLs and original URLs
+const urlDatabase = {};
+
+// Endpoint to shorten a URL
+const shortenUrl = async (req, res) => {
+    const originalUrl = req.body.url;
+    if (!originalUrl) {
+        return res.status(400).json({ error: 'URL is required' });
+    }
+    const shortUrl = generateShortUrl(originalUrl);
+    urlDatabase[shortUrl] = originalUrl;
+    res.json({ shortUrl: `http://yourdomain.com/${shortUrl}` }); // Replace "yourdomain.com" with your actual domain
+};
+
+// Endpoint to redirect to the original URL app.get('/:shortUrl',
+const redirectToOriginalUrl = (req, res) => {
+    const shortUrl = req.params.shortUrl;
+    const originalUrl = urlDatabase[shortUrl];
+    if (!originalUrl) {
+        return res.status(404).send('Short URL not found');
+    }
+    res.redirect(originalUrl);
+}; */
 
 const sendPaymentLink = (async (req, res) => {
     try {
@@ -85,26 +111,20 @@ const schedulePaymentLink = () => {
     setInterval(sendPaymentLink, 30 * 24 * 60 * 60 * 1000); // Vérifiez toutes les 30 jours
 };
 
-
-
-
 const createTransaction = async (req, res) => {
     try {
         let do_url = ""
+        let shortDoUrl = ""
         const landlord = await Landlord.findOne({landlordNumber: req.body.landlordNumber})
         if (!landlord) {
             res.send("landlord doesn't exist")
         }
         const tenant = landlord.listOfTenants.filter(tenant => tenant.tenantNumber == req.body.tenantNumber)
-        console.log(tenant);
         if (!tenant) {
             res.send("tenant doesn't exist")
         }
-        console.log(landlord.listOfProprieties);
-        console.log(landlord.landlordNumber+"-"+tenant[0].proprietyName);
         const proprietyIdBody = landlord.landlordNumber+"-"+tenant[0].proprietyName
         const propriety_id = landlord.listOfProprieties.filter(proprietyId => proprietyId == proprietyIdBody)
-        console.log(propriety_id[0]);
         const propriety = await Propriety.findOne({proprietyId: propriety_id[0]})
         if (!propriety) {
             res.send("propriety doesn't exist")
@@ -112,6 +132,7 @@ const createTransaction = async (req, res) => {
         
         await sendRentReceipt(landlord.landlordFirstname,landlord.landlordLastname,landlord.landlordNumber,tenant[0].tenantFirstname,tenant[0].tenantLastname,tenant[0].tenantNumber,req.body.paymentMethod,req.body.amount,tenant[0].appartementType,tenant[0].proprietyName,propriety.proprietyAdress).then(data => do_url = data)
         
+        await shortenUrl(do_url).then(data => shortDoUrl = data)
         const transaction = await new Transaction({
             tenant: req.body.tenantNumber,
             landlord: req.body.landlordNumber,
@@ -119,7 +140,7 @@ const createTransaction = async (req, res) => {
             amount: req.body.amount,
             status: req.body.status,
             paymentMethod: req.body.paymentMethod,
-            paymentReceipt: do_url
+            paymentReceipt: shortDoUrl
         })
 
         landlord.count += parseInt(req.body.amount)
@@ -187,13 +208,14 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
         const objectKey = Date.now() + "LN" + data[0].Lnumber.substring(4) + ".pdf"
         const fileStream = fs.createReadStream(filePath);
         const do_url = await uploadTemplate(objectKey,fileStream);
-    
+        const shortDoUrl = await shortenUrl(do_url)
         const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
-        const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\nNous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\nVous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${do_url}.\n L'équipe Propay vous remercie !`
+        const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\n Nous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\n Vous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${shortDoUrl}.\n L'équipe Propay vous remercie !`
         
+        console.log(msg);
         const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumber}&sender=${sender}&msg=${msg}`;
         
-        /* await axios.post(apiExterne, {
+        await axios.post(apiExterne, {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
             }
@@ -202,7 +224,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             .catch(error => {
                 log(400, "sendRentReceipt => post on m target api catch", req.body, error.message)
                 return res.send('post on m target api catch')
-        }); */
+        });
         return do_url
 }
 
