@@ -194,7 +194,8 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             },
             path: path.join(__dirname, `../template${num}.pdf`)
         }
-        console.log(document);
+
+
         await pdf.create(document, {
             childProcessOptions: {
                 env: {
@@ -205,8 +206,13 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
         .catch(error => console.log(error))
         
         filePath = document.path;
+        console.log(filePath);
+        console.log("--------------------------------------------");
         const objectKey = Date.now() + "LN" + data[0].Lnumber.substring(4) + ".pdf"
+        console.log(objectKey);
+        console.log("--------------------------------------------");
         const fileStream = fs.createReadStream(filePath);
+        console.log(fileStream);
         const do_url = await uploadTemplate(objectKey,fileStream);
         const shortDoUrl = await shortenUrl(do_url)
         const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
