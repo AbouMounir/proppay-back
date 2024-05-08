@@ -1,4 +1,3 @@
-import axios from 'axios';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path, { dirname } from 'path';
@@ -185,7 +184,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             proprietyAdress: proprietyAdress,
             url: "https://propay-storage.ams3.cdn.digitaloceanspaces.com/propay_doc/logo-propay.png"
         }]
-    
+        const num = Math.floor(Math.random() * 10);
         const template = fs.readFileSync(path.join(__dirname, '../propay-facture/index.html'), 'utf-8');
         const options = { format: 'Letter' };
         const document = await {
@@ -193,7 +192,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             data: {
                 datas : data,
             },
-            path: path.join(__dirname, '../template.pdf')
+            path: path.join(__dirname, `../template${num}.pdf`)
         }
         
         await pdf.create(document, {
@@ -216,7 +215,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
         console.log(msg);
         const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumber}&sender=${sender}&msg=${msg}`;
         
-        await axios.post(apiExterne, {
+        /* await axios.post(apiExterne, {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
             }
@@ -225,7 +224,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             .catch(error => {
                 log(400, "sendRentReceipt => post on m target api catch", req.body, error.message)
                 return res.send('post on m target api catch')
-        });
+        }); */
         return do_url
 }
 
@@ -291,7 +290,7 @@ const getTransactionInfo = async (req, res) => {
         const tenantNumber = transaction.tenant;
         const tenant = landlord.listOfTenants.find(tenant => tenant.tenantNumber === tenantNumber);
         const tenantName = `${tenant.tenantLastname} ${tenant.tenantFirstname}`;
-        res.status(500).json({
+        res.status(200).json({
             message: "the info about a transaction",
             data: { transaction, tenantName }
         });
