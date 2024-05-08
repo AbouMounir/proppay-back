@@ -194,7 +194,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             },
             path: path.join(__dirname, `../template${num}.pdf`)
         }
-        
+        console.log(document);
         await pdf.create(document, {
             childProcessOptions: {
                 env: {
