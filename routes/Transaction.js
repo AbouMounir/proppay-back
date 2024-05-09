@@ -1,5 +1,5 @@
 import express from 'express';
-import { createTransaction, getLandlordTransactionsInfos, getTransactionInfo, getTransactionsInfos, getUploadLink, sendPaymentLink } from '../controllers/Transaction.js';
+import { createTransaction, getLandlordTransactionsInfos, getTransactionInfo, getTransactionsInfos, getUploadLink, getoutTransaction, sendPaymentLink } from '../controllers/Transaction.js';
 import { authMiddleware } from '../controllers/middleware/authMiddleware.js';
 const routerTransaction = express.Router()
 
@@ -69,7 +69,8 @@ const routerTransaction = express.Router()
  *           description: propriety added
  */
 routerTransaction.post('/send', sendPaymentLink)
-routerTransaction.post('/send/factures', createTransaction)
+routerTransaction.post('/payment/rent', createTransaction)
+routerTransaction.post('/payment/getout',authMiddleware,getoutTransaction)
 routerTransaction.get('/info/:id',getTransactionInfo)
 routerTransaction.get('/landlord/infos',authMiddleware, getLandlordTransactionsInfos)
 routerTransaction.get('/infos',getTransactionsInfos)

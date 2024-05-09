@@ -158,6 +158,34 @@ const createTransaction = async (req, res) => {
     }
 }
 
+const getoutTransaction = async (req,res) => {
+    try {
+        const landlord = await Landlord.findOne({_id : req.userId})
+        landlord.count -= parseInt(req.body.amount)
+
+        landlord.save()
+
+        const transaction = await new Transaction({
+            tenant: req.body.tenantNumber,
+            landlord: req.body.landlordNumber,
+            typeOfTransaction: req.body.typeOfTransaction,
+            amount: req.body.amount,
+            status: req.body.status,
+            paymentMethod: req.body.paymentMethod,
+        })
+
+        transaction.save()
+
+        res.status(200).json({
+            message : "success",
+            data: landlord
+        })
+    } catch (error) {
+        console.log(error);
+        res.send("Error : " + error)
+    }
+}
+
 const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastname,Tnumber,paymentMethod,amount,proprietyType,proprietyName,proprietyAdress) => {
         const d = new Date();
         let month = monthes[d.getMonth()];
@@ -217,6 +245,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
         const do_url = await uploadTemplate(objectKey,fileStream).catch(error => console.log(error));
         console.log("--------------------------------------------");
         const shortDoUrl = await shortenUrl(do_url)
+
         const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
         const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\n Nous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\n Vous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${shortDoUrl}.\n L'équipe Propay vous remercie !`
         
@@ -320,5 +349,5 @@ const getUploadLink = async (req,res) => {
 // sendRentReceipt()
 
 
-export { createTransaction, getLandlordTransactionsInfos, getTransactionInfo, getTransactionsInfos, getUploadLink, sendPaymentLink, sendRentReceipt };
+export { createTransaction, getLandlordTransactionsInfos, getTransactionInfo, getTransactionsInfos, getUploadLink, getoutTransaction, sendPaymentLink, sendRentReceipt };
 
