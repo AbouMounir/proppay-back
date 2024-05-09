@@ -213,7 +213,9 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
         console.log("--------------------------------------------");
         const fileStream = fs.createReadStream(filePath);
         console.log(fileStream);
-        const do_url = await uploadTemplate(objectKey,fileStream);
+        console.log("--------------------------------------------");
+        const do_url = await uploadTemplate(objectKey,fileStream).catch(error => console.log(error));
+        console.log("--------------------------------------------");
         const shortDoUrl = await shortenUrl(do_url)
         const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
         const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\n Nous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\n Vous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${shortDoUrl}.\n L'équipe Propay vous remercie !`
