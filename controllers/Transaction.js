@@ -192,7 +192,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             data: {
                 datas : data,
             },
-            path: path.join(__dirname, `../template${num}.pdf`)
+            path: path.join(process.cwd(), `../template${num}.pdf`)
         }
 
 
