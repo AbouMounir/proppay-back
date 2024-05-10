@@ -220,12 +220,11 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             data: {
                 datas : data,
             },
-            path: `https://${process.env.BUCKET}.ams3.digitaloceanspaces.com/propay_doc/template${num}.pdf`
-            //path: path.join(process.cwd(), `tmp/template${num}.pdf`)/* path.join(process.cwd(), `template${num}.pdf` )*/
+            //path: `https://${process.env.BUCKET}.ams3.digitaloceanspaces.com/propay_doc/template${num}.pdf`
+            path: `/tmp/template${num}.pdf`/* path.join(process.cwd(), `template${num}.pdf` )*/
         }
-
         
-        const pdfs = await pdf.create(document, {
+        await pdf.create(document, {
             childProcessOptions: {
                 env: {
                     OPENSSL_CONF: '/dev/null',
@@ -233,8 +232,6 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             }
         })
         .catch(error => console.log(error))
-        
-        console.log(pdfs);
         
         filePath = document.path;
         console.log(filePath);
