@@ -221,7 +221,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
                 datas : data,
             },
             //path: `https://${process.env.BUCKET}.ams3.digitaloceanspaces.com/propay_doc/template${num}.pdf`
-            path: `/tmp/template${num}.pdf`/* path.join(process.cwd(), `template${num}.pdf` )*/
+            path: path.join(process.cwd(),`/tmp/template${num}.pdf`)/* path.join(process.cwd(), `template${num}.pdf` )*/
         }
         
         await pdf.create(document, {
