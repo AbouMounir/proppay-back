@@ -108,5 +108,12 @@ const copyFile = (sourceBucket, sourceKey, destinationBucket, destinationKey) =>
     });
 };
 
+
+/* response = s3.GetBucketLocation(
+    {Bucket : `${process.env.BUCKET}/factures`,}
+)
+
+print(response) */
+
 export { copyFile, deleteFile, s3, spacesEndpoint, upload, uploadDo, uploadFieldName, uploadTemplate };
 

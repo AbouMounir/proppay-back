@@ -210,7 +210,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             proprietyType: proprietyType,
             proprietyName: proprietyName,
             proprietyAdress: proprietyAdress,
-            url: "https://propay-storage.ams3.cdn.digitaloceanspaces.com/propay_doc/logo-propay.png"
+            url: `https://${process.env.BUCKET}.ams3.cdn.digitaloceanspaces.com/propay_doc/logo-propay.png`
         }]
         const num = Math.floor(Math.random() * 10);
         const template = fs.readFileSync(path.join(__dirname, '../propay-facture/index.html'), 'utf-8');
@@ -220,11 +220,12 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             data: {
                 datas : data,
             },
-            path: path.join(process.cwd(), `../template${num}.pdf`)
+            path: `https://${process.env.BUCKET}.ams3.digitaloceanspaces.com/propay_doc/template${num}.pdf`
+            //path: path.join(process.cwd(), `tmp/template${num}.pdf`)/* path.join(process.cwd(), `template${num}.pdf` )*/
         }
 
-
-        await pdf.create(document, {
+        
+        const pdfs = await pdf.create(document, {
             childProcessOptions: {
                 env: {
                     OPENSSL_CONF: '/dev/null',
@@ -233,14 +234,15 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
         })
         .catch(error => console.log(error))
         
+        console.log(pdfs);
+        
         filePath = document.path;
         console.log(filePath);
         console.log("--------------------------------------------");
         const objectKey = Date.now() + "LN" + data[0].Lnumber.substring(4) + ".pdf"
-        console.log(objectKey);
         console.log("--------------------------------------------");
         const fileStream = fs.createReadStream(filePath);
-        console.log(fileStream);
+        //console.log(fileStream);
         console.log("--------------------------------------------");
         const do_url = await uploadTemplate(objectKey,fileStream).catch(error => console.log(error));
         console.log("--------------------------------------------");
@@ -268,20 +270,22 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
 const getLandlordTransactionsInfos = async (req, res) => {
     try {
         let transactionsInfo = [];
-        console.log("user id" +  req.userId)
         const landlord = await Landlord.findOne({_id : req.userId})
-        console.log(landlord);
         const transactions = await Transaction.find({});
         for (const transaction of transactions) {
             const landlordNumber = transaction.landlord;
             if (landlordNumber == landlord.landlordNumber) {
                 const tenantNumber = transaction.tenant;
-                const tenant = landlord.listOfTenants.find(tenant => tenant.tenantNumber === tenantNumber);
-                const tenantName = `${tenant.tenantLastname} ${tenant.tenantFirstname}`;
+                const tenant = landlord.listOfTenants.filter(tenant => tenant.tenantNumber === tenantNumber);
+                let tenantName = "";
+                if (tenant.length != 0) {
+                    tenantName = `${tenant[0].tenantLastname} ${tenant[0].tenantFirstname}`;
+                }
+                console.log(tenantName);
                 transactionsInfo.push({ transaction, tenantName })
             }
         }
-        res.status(500).json({
+        res.status(200).json({
             message: "the info about a transaction",
             data: transactionsInfo
         });
@@ -302,11 +306,11 @@ const getTransactionsInfos = async (req, res) => {
             const landlordNumber = transaction.landlord;
             const landlord = await Landlord.findOne({ landlordNumber });
             const tenantNumber = transaction.tenant;
-            const tenant = landlord.listOfTenants.find(tenant => tenant.tenantNumber === tenantNumber);
+            const tenant = landlord.listOfTenants.filter(tenant => tenant.tenantNumber === tenantNumber);
             const tenantName = `${tenant.tenantLastname} ${tenant.tenantFirstname}`;
             transactionsInfo.push({ transaction, tenantName });
         }
-        res.status(500).json({
+        res.status(200).json({
             message: "the info about a transaction",
             data: transactionsInfo
         });
@@ -325,7 +329,7 @@ const getTransactionInfo = async (req, res) => {
         const landlordNumber = transaction.landlord;
         const landlord = await Landlord.findOne({ landlordNumber });
         const tenantNumber = transaction.tenant;
-        const tenant = landlord.listOfTenants.find(tenant => tenant.tenantNumber === tenantNumber);
+        const tenant = landlord.listOfTenants.filter(tenant => tenant.tenantNumber === tenantNumber);
         const tenantName = `${tenant.tenantLastname} ${tenant.tenantFirstname}`;
         res.status(200).json({
             message: "the info about a transaction",
