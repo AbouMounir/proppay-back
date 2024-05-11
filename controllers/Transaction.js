@@ -220,29 +220,24 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             data: {
                 datas : data,
             },
-            //path: `https://${process.env.BUCKET}.ams3.digitaloceanspaces.com/propay_doc/template${num}.pdf`
-            path: path.join(process.cwd(),`/tmp/template${num}.pdf`)/* path.join(process.cwd(), `template${num}.pdf` )*/
+            path: "https://proppay-back.vercel.app/",
+            type: "stream"
         }
-        
+        let pathPdf = ""
         await pdf.create(document, {
             childProcessOptions: {
                 env: {
                     OPENSSL_CONF: '/dev/null',
                 },
             }
-        })
+        }).then(res => {
+            pathPdf = res.path
+            console.log(res.path)})
         .catch(error => console.log(error))
         
-        filePath = document.path;
-        console.log(filePath);
-        console.log("--------------------------------------------");
         const objectKey = Date.now() + "LN" + data[0].Lnumber.substring(4) + ".pdf"
-        console.log("--------------------------------------------");
-        const fileStream = fs.createReadStream(filePath);
-        //console.log(fileStream);
-        console.log("--------------------------------------------");
+        const fileStream = fs.createReadStream(pathPdf);
         const do_url = await uploadTemplate(objectKey,fileStream).catch(error => console.log(error));
-        console.log("--------------------------------------------");
         const shortDoUrl = await shortenUrl(do_url)
 
         const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
@@ -347,7 +342,7 @@ const getUploadLink = async (req,res) => {
 }
 
 
-// sendRentReceipt()
+//sendRentReceipt()
 
 
 export { createTransaction, getLandlordTransactionsInfos, getTransactionInfo, getTransactionsInfos, getUploadLink, getoutTransaction, sendPaymentLink, sendRentReceipt };
