@@ -6,7 +6,6 @@ import { fileURLToPath } from 'url';
 import Landlord from '../models/Proprietaire.js';
 import Propriety from '../models/Propriete.js';
 import Transaction from '../models/Transaction.js';
-import { uploadTemplate } from './middleware/createOceanFolderMiddleware.js';
 import { shortenUrl } from './middleware/generateUrl.js';
 import log from './middleware/winston.js';
 
@@ -220,8 +219,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             data: {
                 datas : data,
             },
-            path: "https://proppay-back.vercel.app/",
-            type: "stream"
+            path: `./tmp/template${num}.pdf`
         }
         let pathPdf = ""
         await pdf.create(document, {
@@ -230,15 +228,17 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
                     OPENSSL_CONF: '/dev/null',
                 },
             }
-        }).then(res => {
-            pathPdf = res.path
-            console.log(res.path)})
+        }).then((pdfBuffer) => {
+            res.contentType("application/pdf");
+            res.send(pdfBuffer);
+            console.log("PDF generated successfully!");
+        })
         .catch(error => console.log(error))
         
-        const objectKey = Date.now() + "LN" + data[0].Lnumber.substring(4) + ".pdf"
+        /* const objectKey = Date.now() + "LN" + data[0].Lnumber.substring(4) + ".pdf"
         const fileStream = fs.createReadStream(pathPdf);
         const do_url = await uploadTemplate(objectKey,fileStream).catch(error => console.log(error));
-        const shortDoUrl = await shortenUrl(do_url)
+        const shortDoUrl = await shortenUrl(do_url) */
 
         const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
         const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\n Nous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\n Vous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${shortDoUrl}.\n L'équipe Propay vous remercie !`
