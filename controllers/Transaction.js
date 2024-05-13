@@ -256,7 +256,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
                 log(400, "sendRentReceipt => post on m target api catch", req.body, error.message)
                 return res.send('post on m target api catch')
         }); */
-        return do_url
+        //return do_url
 }
 
 const getLandlordTransactionsInfos = async (req, res) => {
