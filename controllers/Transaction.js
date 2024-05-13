@@ -240,12 +240,12 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
         const do_url = await uploadTemplate(objectKey,fileStream).catch(error => console.log(error));
         const shortDoUrl = await shortenUrl(do_url) */
 
-        const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
+        /* const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
         const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\n Nous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\n Vous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${shortDoUrl}.\n L'équipe Propay vous remercie !`
         
         console.log(msg);
         const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumber}&sender=${sender}&msg=${msg}`;
-        
+         */
         /* await axios.post(apiExterne, {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
