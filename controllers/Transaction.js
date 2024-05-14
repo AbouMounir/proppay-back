@@ -215,12 +215,12 @@ const sendRentReceipt = async (Lfirstname, Llastname, Lnumber, Tfirstname, Tlast
     const num = Math.floor(Math.random() * 10);
     const template = fs.readFileSync(path.join(__dirname, '../propay-facture/index.html'), 'utf-8');
     const options = { format: 'Letter' };
-    const document = await {
+    const document = {
         html: template,
         data: {
             datas: data,
         },
-        path: `/tmp`
+        type: "buffer"
     }
     try {
         const pdfs = await pdf.create(document, {
@@ -231,12 +231,25 @@ const sendRentReceipt = async (Lfirstname, Llastname, Lnumber, Tfirstname, Tlast
             }
         })
         console.log("création du pdf success", pdfs)
+        const pathPdf = pdfs;
+        const objectKey = Date.now() + "LN" + data[0].Lnumber.substring(4) + ".pdf"
+        const fileStream = fs.createReadStream(pathPdf);
+        const do_url = await uploadTemplate(objectKey, fileStream).catch(error => console.log(error));
+
+        const shortDoUrl = await shortenUrl(do_url)
+
+        const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
+        const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\n Nous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\n Vous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${shortDoUrl}.\n L'équipe Propay vous remercie !`
+
+        console.log(msg);
+        const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumber}&sender=${sender}&msg=${msg}`;
+        return do_url
     }
-    catch(error) {
+    catch (error) {
         console.log("erreur lors de la création du pdf" + error)
     }
 
-    const pathPdf = document.path;
+    /* const pathPdf = document.path;
     const objectKey = Date.now() + "LN" + data[0].Lnumber.substring(4) + ".pdf"
     const fileStream = fs.createReadStream(pathPdf);
     const do_url = await uploadTemplate(objectKey, fileStream).catch(error => console.log(error));
@@ -248,7 +261,7 @@ const sendRentReceipt = async (Lfirstname, Llastname, Lnumber, Tfirstname, Tlast
 
     console.log(msg);
     const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumber}&sender=${sender}&msg=${msg}`;
-
+ */
     /* await axios.post(apiExterne, {
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
@@ -259,7 +272,7 @@ const sendRentReceipt = async (Lfirstname, Llastname, Lnumber, Tfirstname, Tlast
             log(400, "sendRentReceipt => post on m target api catch", req.body, error.message)
             return res.send('post on m target api catch')
     }); */
-    return do_url
+    
 }
 
 const getLandlordTransactionsInfos = async (req, res) => {
