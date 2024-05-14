@@ -220,7 +220,7 @@ const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastna
             data: {
                 datas : data,
             },
-            path: `/tmp/template${num}.pdf`
+            path: `/tmp`
         }
         await pdf.create(document, {
             childProcessOptions: {
