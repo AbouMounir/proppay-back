@@ -16,8 +16,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 var filePath = "";
 
-const monthes = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Decembre"];
-const days = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"]
+const monthes = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Decembre"];
+const days = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"]
 // the elements of body
 const userName = process.env.USER_NAME;
 const password = process.env.PASSWORD;
@@ -56,7 +56,7 @@ const sendPaymentLink = (async (req, res) => {
         const link = req.body.link
 
         const landlords = await Landlord.find()
-        
+
         landlords.forEach(landlord => {
             const listOfTenants = landlord.listOfTenants;
             if (listOfTenants.length !== 0) {
@@ -65,7 +65,7 @@ const sendPaymentLink = (async (req, res) => {
 
                         const { tenantNumber, proprietyName, tenantFirstname, tenantLastname, appartementNumber, tenantRent, appartementType, nbOfUnpaidRents, totalOfUnpaidRents } = tenant;
                         const tenantNumberMtarget = "%2b" + tenantNumber.substring(1)
-                        const propriety = await Propriety.findOne({proprietyId : landlord.landlordNumber + '-' + proprietyName})
+                        const propriety = await Propriety.findOne({ proprietyId: landlord.landlordNumber + '-' + proprietyName })
                         if (!propriety) {
                             return res.send("propriety doesn't find")
                         }
@@ -115,7 +115,7 @@ const createTransaction = async (req, res) => {
     try {
         let do_url = ""
         let shortDoUrl = ""
-        const landlord = await Landlord.findOne({landlordNumber: req.body.landlordNumber})
+        const landlord = await Landlord.findOne({ landlordNumber: req.body.landlordNumber })
         if (!landlord) {
             res.send("landlord doesn't exist")
         }
@@ -123,15 +123,15 @@ const createTransaction = async (req, res) => {
         if (!tenant) {
             res.send("tenant doesn't exist")
         }
-        const proprietyIdBody = landlord.landlordNumber+"-"+tenant[0].proprietyName
+        const proprietyIdBody = landlord.landlordNumber + "-" + tenant[0].proprietyName
         const propriety_id = landlord.listOfProprieties.filter(proprietyId => proprietyId == proprietyIdBody)
-        const propriety = await Propriety.findOne({proprietyId: propriety_id[0]})
+        const propriety = await Propriety.findOne({ proprietyId: propriety_id[0] })
         if (!propriety) {
             res.send("propriety doesn't exist")
         }
-        
-        await sendRentReceipt(landlord.landlordFirstname,landlord.landlordLastname,landlord.landlordNumber,tenant[0].tenantFirstname,tenant[0].tenantLastname,tenant[0].tenantNumber,req.body.paymentMethod,req.body.amount,tenant[0].appartementType,tenant[0].proprietyName,propriety.proprietyAdress).then(data => do_url = data)
-        
+
+        await sendRentReceipt(landlord.landlordFirstname, landlord.landlordLastname, landlord.landlordNumber, tenant[0].tenantFirstname, tenant[0].tenantLastname, tenant[0].tenantNumber, req.body.paymentMethod, req.body.amount, tenant[0].appartementType, tenant[0].proprietyName, propriety.proprietyAdress).then(data => do_url = data)
+
         await shortenUrl(do_url).then(data => shortDoUrl = data)
         const transaction = await new Transaction({
             tenant: req.body.tenantNumber,
@@ -158,9 +158,9 @@ const createTransaction = async (req, res) => {
     }
 }
 
-const getoutTransaction = async (req,res) => {
+const getoutTransaction = async (req, res) => {
     try {
-        const landlord = await Landlord.findOne({_id : req.userId})
+        const landlord = await Landlord.findOne({ _id: req.userId })
         landlord.count -= parseInt(req.body.amount)
 
         landlord.save()
@@ -177,7 +177,7 @@ const getoutTransaction = async (req,res) => {
         transaction.save()
 
         res.status(200).json({
-            message : "success",
+            message: "success",
             data: landlord
         })
     } catch (error) {
@@ -186,80 +186,86 @@ const getoutTransaction = async (req,res) => {
     }
 }
 
-const sendRentReceipt =  async (Lfirstname,Llastname,Lnumber,Tfirstname, Tlastname,Tnumber,paymentMethod,amount,proprietyType,proprietyName,proprietyAdress) => {
-        const d = new Date();
-        let month = monthes[d.getMonth()];
-        let day = days[d.getDay()]
-        let dayDate = d.getDate()
-        let year = d.getFullYear()
-        const data = [{
-            day: day,
-            dayDate: dayDate,
-            month: month,
-            year: year,
-            Lfirstname: Lfirstname,
-            Llastname: Llastname,
-            Lnumber: Lnumber,
-            Tfirstname: Tfirstname,
-            Tlastname: Tlastname,
-            Tnumber: Tnumber,
-            paymentMethod: paymentMethod,
-            loyer: amount,
-            total: amount,
-            tenantRent: amount,
-            proprietyType: proprietyType,
-            proprietyName: proprietyName,
-            proprietyAdress: proprietyAdress,
-            url: `https://${process.env.BUCKET}.ams3.cdn.digitaloceanspaces.com/propay_doc/logo-propay.png`
-        }]
-        const num = Math.floor(Math.random() * 10);
-        const template = fs.readFileSync(path.join(__dirname, '../propay-facture/index.html'), 'utf-8');
-        const options = { format: 'Letter' };
-        const document = await {
-            html: template,
-            data: {
-                datas : data,
-            },
-            path: `/tmp`
-        }
-        await pdf.create(document, {
+const sendRentReceipt = async (Lfirstname, Llastname, Lnumber, Tfirstname, Tlastname, Tnumber, paymentMethod, amount, proprietyType, proprietyName, proprietyAdress) => {
+    const d = new Date();
+    let month = monthes[d.getMonth()];
+    let day = days[d.getDay()]
+    let dayDate = d.getDate()
+    let year = d.getFullYear()
+    const data = [{
+        day: day,
+        dayDate: dayDate,
+        month: month,
+        year: year,
+        Lfirstname: Lfirstname,
+        Llastname: Llastname,
+        Lnumber: Lnumber,
+        Tfirstname: Tfirstname,
+        Tlastname: Tlastname,
+        Tnumber: Tnumber,
+        paymentMethod: paymentMethod,
+        loyer: amount,
+        total: amount,
+        tenantRent: amount,
+        proprietyType: proprietyType,
+        proprietyName: proprietyName,
+        proprietyAdress: proprietyAdress,
+        url: `https://${process.env.BUCKET}.ams3.cdn.digitaloceanspaces.com/propay_doc/logo-propay.png`
+    }]
+    const num = Math.floor(Math.random() * 10);
+    const template = fs.readFileSync(path.join(__dirname, '../propay-facture/index.html'), 'utf-8');
+    const options = { format: 'Letter' };
+    const document = await {
+        html: template,
+        data: {
+            datas: data,
+        },
+        path: `/tmp`
+    }
+    try {
+        const pdfs = await pdf.create(document, {
             childProcessOptions: {
                 env: {
                     OPENSSL_CONF: '/dev/null',
                 },
             }
         })
-        .catch(error => console.log(error))
-        
-        const pathPdf = document.path;
-        const objectKey = Date.now() + "LN" + data[0].Lnumber.substring(4) + ".pdf"
-        const fileStream = fs.createReadStream(pathPdf);
-        const do_url = await uploadTemplate(objectKey,fileStream).catch(error => console.log(error));
-        const shortDoUrl = await shortenUrl(do_url)
+        console.log("création du pdf success", pdfs)
+    }
+    catch(error) {
+        console.log("erreur lors de la création du pdf" + error)
+    }
 
-        const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
-        const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\n Nous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\n Vous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${shortDoUrl}.\n L'équipe Propay vous remercie !`
-        
-        console.log(msg);
-        const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumber}&sender=${sender}&msg=${msg}`;
+    const pathPdf = document.path;
+    const objectKey = Date.now() + "LN" + data[0].Lnumber.substring(4) + ".pdf"
+    const fileStream = fs.createReadStream(pathPdf);
+    const do_url = await uploadTemplate(objectKey, fileStream).catch(error => console.log(error));
 
-        /* await axios.post(apiExterne, {
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            }
-        })
-            .then()
-            .catch(error => {
-                log(400, "sendRentReceipt => post on m target api catch", req.body, error.message)
-                return res.send('post on m target api catch')
-        }); */
-        return do_url
+    const shortDoUrl = await shortenUrl(do_url)
+
+    const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
+    const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\n Nous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\n Vous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${shortDoUrl}.\n L'équipe Propay vous remercie !`
+
+    console.log(msg);
+    const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumber}&sender=${sender}&msg=${msg}`;
+
+    /* await axios.post(apiExterne, {
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+    })
+        .then()
+        .catch(error => {
+            log(400, "sendRentReceipt => post on m target api catch", req.body, error.message)
+            return res.send('post on m target api catch')
+    }); */
+    return do_url
 }
 
 const getLandlordTransactionsInfos = async (req, res) => {
     try {
         let transactionsInfo = [];
-        const landlord = await Landlord.findOne({_id : req.userId})
+        const landlord = await Landlord.findOne({ _id: req.userId })
         const transactions = await Transaction.find({});
         for (const transaction of transactions) {
             const landlordNumber = transaction.landlord;
@@ -333,7 +339,7 @@ const getTransactionInfo = async (req, res) => {
     }
 };
 
-const getUploadLink = async (req,res) => {
+const getUploadLink = async (req, res) => {
     const transaction = await Transaction.findById(req.params.id)
     res.send(transaction.paymentReceipt)
 }
