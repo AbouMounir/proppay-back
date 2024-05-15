@@ -42,6 +42,8 @@
     "multer-s3": "^2.9.0",
     "node-cron": "^3.0.3",
     "pdf-creator-node": "^2.3.5",
+    "puppeteer": "^22.8.1",
+    "stream": "^0.0.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "tmp": "^0.2.1",

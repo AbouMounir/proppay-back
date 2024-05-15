@@ -1,12 +1,11 @@
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path, { dirname } from 'path';
-import pdf from 'pdf-creator-node';
 import { fileURLToPath } from 'url';
 import Landlord from '../models/Proprietaire.js';
 import Propriety from '../models/Propriete.js';
 import Transaction from '../models/Transaction.js';
-import { uploadTemplate } from './middleware/createOceanFolderMiddleware.js';
+import { generateAndUploadPDF } from './middleware/generatePdf.js';
 import { shortenUrl } from './middleware/generateUrl.js';
 import log from './middleware/winston.js';
 
@@ -23,31 +22,6 @@ const userName = process.env.USER_NAME;
 const password = process.env.PASSWORD;
 const serviceid = process.env.SERVICEID;
 const sender = process.env.SENDER;
-
-
-/* // Database to store mappings between short URLs and original URLs
-const urlDatabase = {};
-
-// Endpoint to shorten a URL
-const shortenUrl = async (req, res) => {
-    const originalUrl = req.body.url;
-    if (!originalUrl) {
-        return res.status(400).json({ error: 'URL is required' });
-    }
-    const shortUrl = generateShortUrl(originalUrl);
-    urlDatabase[shortUrl] = originalUrl;
-    res.json({ shortUrl: `http://yourdomain.com/${shortUrl}` }); // Replace "yourdomain.com" with your actual domain
-};
-
-// Endpoint to redirect to the original URL app.get('/:shortUrl',
-const redirectToOriginalUrl = (req, res) => {
-    const shortUrl = req.params.shortUrl;
-    const originalUrl = urlDatabase[shortUrl];
-    if (!originalUrl) {
-        return res.status(404).send('Short URL not found');
-    }
-    res.redirect(originalUrl);
-}; */
 
 const sendPaymentLink = (async (req, res) => {
     try {
@@ -214,54 +188,21 @@ const sendRentReceipt = async (Lfirstname, Llastname, Lnumber, Tfirstname, Tlast
     }]
     const num = Math.floor(Math.random() * 10);
     const template = fs.readFileSync(path.join(__dirname, '../propay-facture/index.html'), 'utf-8');
-    const options = { format: 'Letter' };
-    const document = {
-        html: template,
-        data: {
-            datas: data,
-        },
-        type: "buffer"
-    }
+
     try {
-        const pdfs = await pdf.create(document, {
-            childProcessOptions: {
-                env: {
-                    OPENSSL_CONF: '/dev/null',
-                },
-            }
-        })
-        console.log("création du pdf success", pdfs)
-        const pathPdf = pdfs;
-        const objectKey = Date.now() + "LN" + data[0].Lnumber.substring(4) + ".pdf"
-        const fileStream = fs.createReadStream(pathPdf);
-        const do_url = await uploadTemplate(objectKey, fileStream).catch(error => console.log(error));
-
-        const shortDoUrl = await shortenUrl(do_url)
-
+        const pdfUrl = await generateAndUploadPDF(template,data[0],num)
+        const shortDoUrl = await shortenUrl(pdfUrl)
         const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
         const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\n Nous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\n Vous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${shortDoUrl}.\n L'équipe Propay vous remercie !`
-
+        console.log("Generation et upload of pdf successed :" + pdfUrl);
         console.log(msg);
         const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumber}&sender=${sender}&msg=${msg}`;
-        return do_url
+        return pdfUrl
+    } catch (error) {
+        console.log("Error on generation et upload of pdf :" + error);
     }
-    catch (error) {
-        console.log("erreur lors de la création du pdf" + error)
-    }
+    
 
-    /* const pathPdf = document.path;
-    const objectKey = Date.now() + "LN" + data[0].Lnumber.substring(4) + ".pdf"
-    const fileStream = fs.createReadStream(pathPdf);
-    const do_url = await uploadTemplate(objectKey, fileStream).catch(error => console.log(error));
-
-    const shortDoUrl = await shortenUrl(do_url)
-
-    const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
-    const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\n Nous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\n Vous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${shortDoUrl}.\n L'équipe Propay vous remercie !`
-
-    console.log(msg);
-    const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumber}&sender=${sender}&msg=${msg}`;
- */
     /* await axios.post(apiExterne, {
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
@@ -272,7 +213,7 @@ const sendRentReceipt = async (Lfirstname, Llastname, Lnumber, Tfirstname, Tlast
             log(400, "sendRentReceipt => post on m target api catch", req.body, error.message)
             return res.send('post on m target api catch')
     }); */
-    
+
 }
 
 const getLandlordTransactionsInfos = async (req, res) => {

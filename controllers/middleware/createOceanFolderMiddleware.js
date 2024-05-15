@@ -5,6 +5,7 @@ import multerS3 from "multer-s3";
 import { dirname } from "path";
 import { fileURLToPath } from 'url';
 
+
 dotenv.config({ path: './../../config/.env' })
 
 const __filename = fileURLToPath(import.meta.url);
@@ -116,4 +117,3 @@ const copyFile = (sourceBucket, sourceKey, destinationBucket, destinationKey) =>
 print(response) */
 
 export { copyFile, deleteFile, s3, spacesEndpoint, upload, uploadDo, uploadFieldName, uploadTemplate };
-
