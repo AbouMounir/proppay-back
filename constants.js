@@ -1,0 +1,20 @@
+const data = [{
+    day: day,
+    dayDate: dayDate,
+    month: month,
+    year: year,
+    Lfirstname: Lfirstname,
+    Llastname: Llastname,
+    Lnumber: Lnumber,
+    Tfirstname: Tfirstname,
+    Tlastname: Tlastname,
+    Tnumber: Tnumber,
+    paymentMethod: paymentMethod,
+    loyer: amount,
+    total: amount,
+    tenantRent: amount,
+    proprietyType: proprietyType,
+    proprietyName: proprietyName,
+    proprietyAdress: proprietyAdress,
+    url: `https://${process.env.BUCKET}.ams3.cdn.digitaloceanspaces.com/propay_doc/logo-propay.png`
+}]

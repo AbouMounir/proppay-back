@@ -18,7 +18,7 @@ export async function generateAndUploadPDF(template, data, num) {
     // Charger le contenu HTML dans la page
     await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
-    // Générer le PDF en mémoire
+    // Générer le PDF en mémoire    
     const pdfBuffer = await page.pdf({ format: 'A4' });
 
     await browser.close();
