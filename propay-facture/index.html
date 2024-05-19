@@ -10,50 +10,43 @@
 <body style="height:100%;padding: 0;margin:0;box-sizing:border-box">
     <div style="height:100%;border-left: 5px solid cyan;margin: 24px 20px 0px 5px;padding-left: 15px"  class="main">
         <div style="width:100%;height:225px;position:relative;margin:30px 0px 15px 0px">
-            {{#each datas}}
             <div style="width:40%;position:absolute;right:0">
                 <p style="font-size: 18px;font-weight:200;text-align:end;margin:5px 0 8px 0">Quittance de loyer</p>
                 <p style="font-size: 12px;font-weight:100;margin:0;text-align:end;">Facture N° 187AB76</p>
-                <p style="font-size: 12px;font-weight:100;margin:0;text-align:end;">{{this.day}} {{this.dayDate}} {{this.month}} {{this.year}}</p>
+                <p style="font-size: 12px;font-weight:100;margin:0;text-align:end;">{{day}} {{dayDate}} {{month}} {{year}}</p>
             </div>
             <div style="width:60%;position:absolute;left:0;top:80px">
                 <p style="margin-bottom: 0;" class="qi-l-name"><span style="font-size: 14px;font-weight:600">Propriétaire :</span>
-                    {{this.Lfirstname}}
-                    {{this.Llastname}}
+                    {{Lfirstname}}
+                    {{Llastname}}
                 </p>
                 <p style="font-size: 12px;font-weight:100;margin: 5px 0px;" class="qi-l-number">
-                    {{this.Lnumber}}
+                    {{Lnumber}}
                 </p>
                 <p style="margin-bottom: 0;" class="qi-l-name qiln-2"><span style="font-size: 14px;font-weight:600;margin-top:12px">Locataire
                         :</span>
-                    {{this.Tfirstname}}
-                    {{this.Tlastname}}
+                    {{Tfirstname}}
+                    {{Tlastname}}
                 </p>
                 <p style="font-size: 12px;font-weight:100;margin: 5px 0px;" class="qi-l-number">
-                    {{this.Tnumber}}
+                    {{Tnumber}}
                 </p>
             </div>
-            {{/each}}
         </div>
-        {{#each datas}}
         <div style="margin-bottom: 40px;" class="cr-quittance-payment">
-            <p style="font-size: 20px;font-weight:600;text-align: center;margin:0" class="qp-title">Paiement loyer : {{this.month}} {{this.year}}
+            <p style="font-size: 20px;font-weight:600;text-align: center;margin:0" class="qp-title">Paiement loyer : {{month}} {{year}}
             </p>
         </div>
-        {{/each}}
         <div class="cr-quittance-table">
             <div class="qt-log">
-                {{#each datas}}
                 <p style="font-size: 14px;font-weight:600;margin:5px 0px" class="qi-l-name"><span>Logement</span></p>
                 <p style="font-size: 10px;font-weight:100;margin:0px" class="qt-log-text">
-                    {{this.proprietyType}}, {{this.proprietyName}}, {{this.proprietyAdress}},
+                    {{proprietyType}}, {{proprietyName}}, {{proprietyAdress}},
                     Cocody, Abidjan
                 </p>
-                {{/each}}
             </div>
             <div style="margin-top: 30px;" class="qt-descr">
                 <table style="width: 100%;font-size:10px">
-                    {{#each datas}}
                     <tr>
                         <th align="left" style="padding: 7px 0 7px 2px;font-size:14px" class="t-left">Description</th>
                         <th align="right" style="padding: 7px 2px 7px 0px;font-size:14px" class="t-right">Montant</th>
@@ -61,7 +54,7 @@
                     <tr style="background-color: #FFF4D7;">
                         <td align="left" style="padding: 7px 0 7px 2px;" class="t-left t-loyer">Loyer hors charges</td>
                         <td align="right" style="padding: 7px 2px 7px 0px;" class="t-right t-loyer">
-                            {{this.tenantRent}}
+                            {{tenantRent}}
                         </td>
                     </tr>
                     <tr>
@@ -71,17 +64,16 @@
                     <tr>
                         <td align="left" style="padding: 7px 0 7px 2px;" class="t-left">Moyen de paiement</td>
                         <td align="right" style="padding: 7px 2px 7px 0px;" class="t-right">
-                            {{this.paymentMethod}}
+                            {{paymentMethod}}
                         </td>
                     </tr>
                     <tr style="font-weight: 600;font-size: 12px;">
                         <td align="left" style="padding: 10px 0px;border-top: 1px solid black" class="t-left t-total">
                             Montant total payé</td>
                         <td align="right" style="padding: 10px 0px;border-top: 1px solid black" class="t-right t-total">
-                            {{this.total}}
+                            {{total}}
                         </td>
                     </tr>
-                    {{/each}}
                 </table>
             </div>
         </div>
@@ -96,11 +88,9 @@
                 <p style="font-size: 13px;font-weight:500;margin:0" class="qpc-l-pay">Payé avec</p>
                 <p style="margin: 0px;">www.monpropay.com</p>
             </div>
-            {{#each datas}}
             <div style="position:absolute;right: -10px;;top:-5px" class="qpc-right">
-                <img style="height: 40px;width:40px" src="{{this.url}}" alt="Logo Propay">
+                <img style="height: 40px;width:40px" src="{{url}}" alt="Logo Propay">
             </div>
-            {{/each}}
         </div>
     </div>
 </body>

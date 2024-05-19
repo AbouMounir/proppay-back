@@ -1,12 +1,21 @@
+import chromium from "@sparticuz/chromium-min";
 import dotenv from 'dotenv';
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 import stream from "stream";
 import { s3 } from "./createOceanFolderMiddleware.js";
 
 dotenv.config({ path: './../../config/.env' })
 
 export async function generateAndUploadPDF(template, data, num) {
-    const browser = await puppeteer.launch();
+
+    const chromiumPack = "https://github.com/AbouMounir/proppay-back/releases/download/v1.0.1/chromium-v123.0.1-pack.tar"
+
+    
+    const browser = await puppeteer.launch({
+        args: chromium.args,
+        executablePath: await chromium.executablePath(chromiumPack),
+        headless: chromium.headless,
+    });
     const page = await browser.newPage();
 
     // Remplacer les variables dans le template HTML
