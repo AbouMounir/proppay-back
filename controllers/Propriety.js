@@ -1,5 +1,5 @@
-import Landlord from "../models/Proprietaire.js";
-import Propriety from "../models/Propriete.js";
+import Landlord from "../models/Landlord.js";
+import Propriety from "../models/Propriety.js";
 import { uploadFieldName } from "./middleware/createOceanFolderMiddleware.js";
 
 const addPropriety = (async (req, res) => {

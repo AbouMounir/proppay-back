@@ -1,5 +1,5 @@
 import express from 'express';
-import { addPropriety, deletePropriety, getProprieties, getPropriety } from '../controllers/Propriete.js';
+import { addPropriety, deletePropriety, getProprieties, getPropriety } from '../controllers/Propriety.js';
 const routerPropriety = express.Router()
 
 /**

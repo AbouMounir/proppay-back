@@ -10,7 +10,7 @@ import {
     signupTenant,
     updateTenantNumber,
     updateTenantPassword
-} from '../controllers/Locataire.js';
+} from '../controllers/Tenant.js';
 import { authMiddleware } from '../controllers/middleware/authMiddleware.js';
 
 

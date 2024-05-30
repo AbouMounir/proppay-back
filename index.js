@@ -6,9 +6,9 @@ import swaggerJSDoc from "swagger-jsdoc";
 import { serve, setup } from "swagger-ui-express";
 import { authMiddleware } from "./controllers/middleware/authMiddleware.js";
 import connectDb from "./database/db.js";
+import { default as routerLandlord, default as routerTenant } from "./routes/Landlord.js";
 import routerNotification from "./routes/Notification.js";
-import { default as routerLandlord, default as routerTenant } from "./routes/Proprietaire.js";
-import routerPropriety from "./routes/Propriete.js";
+import routerPropriety from "./routes/Propriety.js";
 import routerTransaction from "./routes/Transaction.js";
 
 const app = express();

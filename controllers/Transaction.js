@@ -2,8 +2,8 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import Landlord from '../models/Proprietaire.js';
-import Propriety from '../models/Propriete.js';
+import Landlord from '../models/Landlord.js';
+import Propriety from '../models/Propriety.js';
 import Transaction from '../models/Transaction.js';
 import { generateAndUploadPDF } from './middleware/generatePdf.js';
 import { shortenUrl } from './middleware/generateUrl.js';
@@ -46,7 +46,7 @@ const sendPaymentLink = (async (req, res) => {
                         const msg = `Bonjour M/Mme/Mlle. ${tenantLastname} ${tenantFirstname},\nNous vous informons que vous devez payer ${totalOfUnpaidRents} correspondant aux loyers de ${nbOfUnpaidRents} mois pour votre ${appartementType} dans la propriété ${proprietyName} à ${propriety.proprietyAdress}.\nVeuillez effectuer le paiement, dès que possible, d'au moins ${tenantRent} ou le montant total de ${totalOfUnpaidRents} via le lien suivant : ${link}.\n Le lien est valable pour 5 jours et vous recevrez un nouveau lien en cas de non paiement.Cordialement, Propay.`
 
                         // l'api externe de Mtarget
-                        /* const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumberMtarget}&sender=${sender}&msg=${msg}`;
+                        const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumberMtarget}&sender=${sender}&msg=${msg}`;
 
                         await axios.post(apiExterne, {
                             headers: {
@@ -57,8 +57,7 @@ const sendPaymentLink = (async (req, res) => {
                             .catch(error => {
                                 log(400, "sendPaymentLink => post on m target api catch", req.body, error.message)
                                 return res.send('post on m target api catch')
-                        }); */
-                        console.log(msg);
+                        });
                     }
                 })
             }
@@ -135,6 +134,14 @@ const createTransaction = async (req, res) => {
 const getoutTransaction = async (req, res) => {
     try {
         const landlord = await Landlord.findOne({ _id: req.userId })
+        console.log(req.body.amount);
+        console.log(landlord.count);
+        if(parseInt(req.body.amount) > landlord.count){
+            return res.status(500).json({
+                message: "failed : insufficient funds"
+            })
+        }
+
         landlord.count -= parseInt(req.body.amount)
 
         landlord.save()

@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import Tenant from '../models/Locataire.js';
+import Tenant from '../models/Tenant.js';
 
 
 const getTenants = ((req, res) => {

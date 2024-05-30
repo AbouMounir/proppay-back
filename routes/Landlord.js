@@ -20,7 +20,7 @@ import {
     updateProfilImage,
     verifyAuthOTP,
     verifyLandloardNumber
-} from '../controllers/Proprietaire.js';
+} from '../controllers/Landlord.js';
 import { authMiddleware } from '../controllers/middleware/authMiddleware.js';
 
 // Schema des différents models

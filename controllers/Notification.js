@@ -1,6 +1,6 @@
 import nodeCron from 'node-cron';
+import Landlord from '../models/Landlord.js';
 import Notification from "../models/Notification.js";
-import Landlord from '../models/Proprietaire.js';
 
 const task1 = nodeCron.schedule('30 21 14 4 * *', async () => {
     try {
