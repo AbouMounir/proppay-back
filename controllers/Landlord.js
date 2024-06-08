@@ -60,7 +60,7 @@ const addTenant = (async (req, res) => {
         await landlord.save().catch(error => {
             log(400, "addTenant => landlord save catch", req.body, error.message)
             res.status(500).json({ message: 'landlord save catch' });
-        });;
+        });
 
         propriety.listOfTenants.push(locataire);
         propriety.occupiedUnits = parseInt(propriety.occupiedUnits) + 1
@@ -135,7 +135,7 @@ const sendAuthOTP = (async (req, res) => {
         const password = process.env.PASSWORD;
         const serviceid = process.env.SERVICEID;
         const sender = process.env.SENDER;
-        const msg = `Bonjour, votre code d'authentification pour Propay est ${otpCode}. Le code est valide pour 5 minutes. Ne le partagez pas. `
+        const msg = `Bonjour, votre code d'authentification pour Nanbau est ${otpCode}. Le code est valide pour 5 minutes. Ne le partagez pas. `
 
         // Stocker le timestamp actuel
         codeTimestamps[userNumberCount] = new Date();
@@ -321,7 +321,6 @@ const updateProfil = async (req, res) => {
                     error: error.message
                 });
             }
-
             // Si aucun fichier n'a été envoyé, traiter les autres champs normalement
             if (!req.file) {
                 console.log(req.body);

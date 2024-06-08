@@ -43,7 +43,7 @@ const sendPaymentLink = (async (req, res) => {
                         if (!propriety) {
                             return res.send("propriety doesn't find")
                         }
-                        const msg = `Bonjour M/Mme/Mlle. ${tenantLastname} ${tenantFirstname},\nNous vous informons que vous devez payer ${totalOfUnpaidRents} correspondant aux loyers de ${nbOfUnpaidRents} mois pour votre ${appartementType} dans la propriété ${proprietyName} à ${propriety.proprietyAdress}.\nVeuillez effectuer le paiement, dès que possible, d'au moins ${tenantRent} ou le montant total de ${totalOfUnpaidRents} via le lien suivant : ${link}.\n Le lien est valable pour 5 jours et vous recevrez un nouveau lien en cas de non paiement.Cordialement, Propay.`
+                        const msg = `Bonjour M/Mme/Mlle. ${tenantLastname} ${tenantFirstname},\nNous vous informons que vous devez payer ${totalOfUnpaidRents} correspondant aux loyers de ${nbOfUnpaidRents} mois pour votre ${appartementType} dans la propriété ${proprietyName} à ${propriety.proprietyAdress}.\nVeuillez effectuer le paiement, dès que possible, d'au moins ${tenantRent} ou le montant total de ${totalOfUnpaidRents} via le lien suivant : ${link}.\n Le lien est valable pour 5 jours et vous recevrez un nouveau lien en cas de non paiement.Cordialement, Nanbau.`
 
                         // l'api externe de Mtarget
                         const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumberMtarget}&sender=${sender}&msg=${msg}`;
@@ -200,7 +200,7 @@ const sendRentReceipt = async (Lfirstname, Llastname, Lnumber, Tfirstname, Tlast
         const pdfUrl = await generateAndUploadPDF(template,data[0],num)
         const shortDoUrl = await shortenUrl(pdfUrl)
         const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
-        const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\n Nous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\n Vous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${shortDoUrl}.\n L'équipe Propay vous remercie !`
+        const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\n Nous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\n Vous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${shortDoUrl}.\n L'équipe Nanbau vous remercie !`
         console.log("Generation et upload of pdf successed :" + pdfUrl);
         console.log(msg);
         const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumber}&sender=${sender}&msg=${msg}`;

@@ -29,7 +29,8 @@ app.get('/', function(req, res) {
 }); */
 
 // the routes of the app
-app.use('/users/tenahttps://proppay-back.vercel.app/nts', routerTenant)
+// https://proppay-back.vercel.app/
+app.use('/users/tenants', routerTenant)
 app.use('/users/landlords', routerLandlord)
 app.use('/proprieties',  routerPropriety)
 app.use('/transactions',  routerTransaction)
