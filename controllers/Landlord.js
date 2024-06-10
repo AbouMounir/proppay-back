@@ -314,59 +314,62 @@ const getLandlordTenants = (async (req, res) => {
 
 const updateProfil = async (req, res) => {
     try {
-        await upload('identity', 'landlords/pieces')(req, res, async function (error) {
-            if (error) {
-                return res.status(400).json({
-                    message: "Erreur lors de l'envoi du fichier",
-                    error: error.message
+        // await upload('identity', 'landlords/pieces')(req, res, async function (error) {
+           
+        // });
+
+
+        // if (error) {
+        //     return res.status(400).json({
+        //         message: "Erreur lors de l'envoi du fichier",
+        //         error: error.message
+        //     });
+        // }
+        // Si aucun fichier n'a été envoyé, traiter les autres champs normalement
+        if (!req.profile) {
+            console.log(req.body);
+            await Landlord.findOne({ _id: req.userId })
+                .then(async user => {
+                    if (!user) {
+                        return res.status(404).json({ message: "Utilisateur non trouvé" });
+                    }
+                    console.log(req.body);
+                    user.landlordFirstname = req.body.landlordFirstname || user.landlordFirstname;
+                    user.landlordLastname = req.body.landlordLastname || user.landlordLastname;
+                    user.landlordAdress = req.body.landlordAdress || user.landlordAdress;
+                    await user.save();
+                    res.send(user);
+                })
+                .catch(error => {
+                    res.status(400).json({
+                        message: "Erreur lors de la recherche de l'utilisateur",
+                        error: error.message
+                    });
                 });
-            }
-            // Si aucun fichier n'a été envoyé, traiter les autres champs normalement
-            if (!req.file) {
-                console.log(req.body);
-                await Landlord.findOne({ _id: req.userId })
-                    .then(async user => {
-                        if (!user) {
-                            return res.status(404).json({ message: "Utilisateur non trouvé" });
-                        }
-                        console.log(req.body);
-                        user.landlordFirstname = req.body.landlordFirstname || user.landlordFirstname;
-                        user.landlordLastname = req.body.landlordLastname || user.landlordLastname;
-                        user.landlordAdress = req.body.landlordAdress || user.landlordAdress;
-                        await user.save();
-                        res.send(user);
-                    })
-                    .catch(error => {
-                        res.status(400).json({
-                            message: "Erreur lors de la recherche de l'utilisateur",
-                            error: error.message
-                        });
+        } else {
+            // Si un fichier a été envoyé, mettre à jour le champ "identity" avec son emplacement
+            console.log(req.body);
+            console.log(req.file);
+            await Landlord.findOne({ _id: req.userId  })
+                .then(async user => {
+                    if (!user) {
+                        return res.status(404).json({ message: "Utilisateur non trouvé" });
+                    }
+                    console.log(req.body);
+                    user.landlordFirstname = req.body.landlordFirstname || user.landlordFirstname;
+                    user.landlordLastname = req.body.landlordLastname || user.landlordLastname;
+                    user.landlordAdress = req.body.landlordAdress || user.landlordAdress;
+                    user.identity = req.profile;
+                    await user.save();
+                    res.send(user);
+                })
+                .catch(error => {
+                    res.status(400).json({
+                        message: "Erreur lors de la recherche de l'utilisateur",
+                        error: error.message
                     });
-            } else {
-                // Si un fichier a été envoyé, mettre à jour le champ "identity" avec son emplacement
-                console.log(req.body);
-                console.log(req.file);
-                await Landlord.findOne({ _id: req.userId  })
-                    .then(async user => {
-                        if (!user) {
-                            return res.status(404).json({ message: "Utilisateur non trouvé" });
-                        }
-                        console.log(req.body);
-                        user.landlordFirstname = req.body.landlordFirstname || user.landlordFirstname;
-                        user.landlordLastname = req.body.landlordLastname || user.landlordLastname;
-                        user.landlordAdress = req.body.landlordAdress || user.landlordAdress;
-                        user.identity = req.file.location;
-                        await user.save();
-                        res.send(user);
-                    })
-                    .catch(error => {
-                        res.status(400).json({
-                            message: "Erreur lors de la recherche de l'utilisateur",
-                            error: error.message
-                        });
-                    });
-            }
-        });
+                });
+        }
     } catch (error) {
         res.status(400).json({
             message: "Erreur lors de la mise à jour du profil",

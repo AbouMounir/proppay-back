@@ -7,21 +7,29 @@ const addPropriety = (async (req, res) => {
         let proofOfPropriety;
         let proprietyImages;
         console.log(req.body)
-        if(!Object.keys(req.body).length === 0){
+        if(!Object.keys(req.body).length > 0){
             console.log("body is not empty");
         }else{
             console.log("body is empty");
         }
-        if(req.body.proofOfPropriety || req.body.proprietyImages){
-            uploadFieldName('proprieties')(req, res, async function (err) {
-                if (err) {
-                    console.error('Error uploading files to DigitalOcean Spaces:', err);
-                    // return res.status(500).send('Error uploading files to DigitalOcean Spaces');
-                }
-                // Files uploaded successfully
-                proprietyImages = req.files['fieldName1'][0]?.location;
-                proofOfPropriety = req.files['fieldName2'][0]?.location;
-            });
+        // if(req.body.proofOfPropriety || req.body.proprietyImages){
+        //     uploadFieldName('proprieties')(req, res, async function (err) {
+        //         if (err) {
+        //             console.error('Error uploading files to DigitalOcean Spaces:', err);
+        //             // return res.status(500).send('Error uploading files to DigitalOcean Spaces');
+        //         }
+        //         // Files uploaded successfully
+        //         proprietyImages = req.files['fieldName1'][0]?.location;
+        //         proofOfPropriety = req.files['fieldName2'][0]?.location;
+        //     });
+        // }
+
+        if(req.body.proofOfPropriety){
+            proofOfPropriety =req.body.proofOfPropriety;
+        }
+
+        if(req.body.proprietyImages){
+            proprietyImages = req.body.proprietyImages;
         }
         //copyFile('propay-storage/proprieties',req.files['fieldName2'][0].key,'propay-storage/preuves',req.files['fieldName2'][0].key)
         const obj = JSON.parse(JSON.stringify(req.body));
