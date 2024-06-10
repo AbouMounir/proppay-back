@@ -17,6 +17,10 @@ const Tenant = mongoose.model('tenants', {
     tenantAdress: {
         type: String
     },
+    propriety: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "proprietes",
+        },
     urlImage: {
         type: String,
         default: ''

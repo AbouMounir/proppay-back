@@ -6,12 +6,7 @@ const addPropriety = (async (req, res) => {
     try {
         let proofOfPropriety;
         let proprietyImages;
-        console.log(req.body)
-        if(!Object.keys(req.body).length > 0){
-            console.log("body is not empty");
-        }else{
-            console.log("body is empty");
-        }
+      
         // if(req.body.proofOfPropriety || req.body.proprietyImages){
         //     uploadFieldName('proprieties')(req, res, async function (err) {
         //         if (err) {
@@ -33,10 +28,10 @@ const addPropriety = (async (req, res) => {
         }
         //copyFile('propay-storage/proprieties',req.files['fieldName2'][0].key,'propay-storage/preuves',req.files['fieldName2'][0].key)
         const obj = JSON.parse(JSON.stringify(req.body));
-        console.log(obj);
+        // console.log(obj);
         // Ajouter la propriété dans la base de données 'propriétés
         const propriety =  new Propriety({
-            proprietyId: req.body.landlordNumber + '-' + req.body.proprietyName,
+            // proprietyId: req.body.landlordNumber + '-' + req.body.proprietyName,
             proprietyName: req.body.proprietyName,
             proprietyAdress: req.body.proprietyAdress,
             proprietyType: req.body.proprietyType,
@@ -58,14 +53,16 @@ const addPropriety = (async (req, res) => {
             proprietyOccupation: req.body.proprietyOccupation,
             PreuveDepropriety: req.body.PreuveDepropriety
         } */
-        console.log(proofOfPropriety)
-        console.log(proprietyImages)
-        const proprietyId = req.body.landlordNumber + '-' + req.body.proprietyName
+        
+        // const proprietyId = req.body.landlordNumber + '-' + req.body.proprietyName
         const landlord = await Landlord.findOne({ landlordNumber: req.body.landlordNumber });
         if(landlord){
-            landlord.listOfProprieties.push(proprietyId)
+            if (!landlord.listOfProprieties) {
+                landlord.listOfProprieties = [];
+            }
+            landlord.listOfProprieties.push(propriety._id);
             await landlord.save();
-            res.status(200).json({ message: 'Élément ajouté avec succès' });
+            res.status(200).json({ message: 'Élément ajouté avec succès', data : propriety });
         }else{
             res.status(404).json({ message: 'Landlord not found' });
         }
@@ -75,12 +72,60 @@ const addPropriety = (async (req, res) => {
     }
 })
 
+
+const updatePropriety = async (req, res) => {
+    try {
+        let proofOfPropriety;
+        let proprietyImages;
+        console.log(req.body);
+
+        if (req.body.proofOfPropriety) {
+            proofOfPropriety = req.body.proofOfPropriety;
+        }
+
+        if (req.body.proprietyImages) {
+            proprietyImages = req.body.proprietyImages;
+        }
+
+        const obj = JSON.parse(JSON.stringify(req.body));
+        console.log(obj);
+
+        const proprietyId = req.params.id;
+
+        // Rechercher l'immeuble par ID
+        const propriety = await Propriety.findById(proprietyId);
+        if (!propriety) {
+            return res.status(404).json({ message: 'Immeuble non trouvé' });
+        }
+
+        // Mettre à jour les champs de l'immeuble
+        propriety.proprietyName = req.body.proprietyName || propriety.proprietyName;
+        propriety.proprietyAdress = req.body.proprietyAdress || propriety.proprietyAdress;
+        propriety.proprietyType = req.body.proprietyType || propriety.proprietyType;
+        propriety.proprietyImages = proprietyImages || propriety.proprietyImages;
+        propriety.proprietyOccupation = req.body.proprietyOccupation || propriety.proprietyOccupation;
+        propriety.proofOfPropriety = proofOfPropriety || propriety.proofOfPropriety;
+        propriety.totalUnits = req.body.totalUnits || propriety.totalUnits;
+        propriety.occupiedUnits = req.body.occupiedUnits || propriety.occupiedUnits;
+        propriety.availableUnits = req.body.availableUnits || propriety.availableUnits;
+
+        await propriety.save();
+        console.log(propriety);
+
+        res.status(200).json({ message: 'Élément mis à jour avec succès', propriety });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erreur lors de la mise à jour de l\'élément' });
+    }
+}
+
+
 const getProprieties = (async (req, res) => {
     await Propriety.find({}).then(item => res.send(item))
 })
 
 const getPropriety = (async (req, res) => {
-    await Propriety.findOne({ _id: req.params.id }).then(item => res.send(item))
+    await Propriety.findOne({ _id: req.params.id }).populate({"path" : "listOfTenants"}).then(item => res.send(item))
 })
 
 const deletePropriety = (async (req, res) => {
@@ -103,5 +148,5 @@ const deletePropriety = (async (req, res) => {
     }
 })
 
-export { addPropriety, deletePropriety, getProprieties, getPropriety };
+export { addPropriety, deletePropriety, getProprieties, getPropriety, updatePropriety };
 

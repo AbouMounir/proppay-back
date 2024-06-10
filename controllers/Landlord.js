@@ -7,6 +7,7 @@ import Propriety from '../models/Propriety.js';
 import { upload } from './middleware/createOceanFolderMiddleware.js';
 import { generateOTP } from './middleware/otpMiddleware.js';
 import log from './middleware/winston.js';
+import Tenant from '../models/Tenant.js';
 
 // constante pour recuperer le code envoyé
 let otpSend = "";
@@ -38,17 +39,22 @@ const addTenant = (async (req, res) => {
         const locataire = {
             tenantNumber: req.body.tenantNumber,
             proprietyName: req.body.proprietyName,
-            tenantFirstname: req.body.tenantFirstname,
-            tenantLastname: req.body.tenantLastname,
+            tenantFirstName: req.body.tenantFirstname,
+            tenantLastName: req.body.tenantLastname,
             appartementNumber: req.body.appartementNumber,
             tenantRent: req.body.tenantRent,
             appartementType: req.body.appartementType,
             nbOfUnpaidRents: req.body.nbOfUnpaidRents,
-            totalOfUnpaidRents: totalOfUnpaidRents.toString()
+            totalOfUnpaidRents: totalOfUnpaidRents.toString(),
+            propriety : req.body.proprietyId
         }
 
-        const landlord = await Landlord.findOne({ landlordNumber: req.body.landlordNumber });
-        const propriety = await Propriety.findOne({ proprietyId: req.body.landlordNumber + '-' + req.body.proprietyName });
+        console.log(req.body.tenantLastname)
+        const tenant = new Tenant(locataire);
+        await tenant.save();
+
+        const landlord = await Landlord.findOne({ _id: req.params.id });
+        const propriety = await Propriety.findOne({ _id : req.body.proprietyId });
 
         if (!propriety || !landlord) {
             res.status(400).json({
@@ -56,13 +62,20 @@ const addTenant = (async (req, res) => {
             })
         }
 
-        landlord.listOfTenants.push(locataire)
+        if (!landlord.listOfTenants) {
+            landlord.listOfTenants = [];
+        }
+        landlord.listOfTenants.push(tenant._id)
         await landlord.save().catch(error => {
             log(400, "addTenant => landlord save catch", req.body, error.message)
             res.status(500).json({ message: 'landlord save catch' });
         });
 
-        propriety.listOfTenants.push(locataire);
+        if (!propriety.listOfTenants) {
+            propriety.listOfTenants = [];
+        }
+
+        propriety.listOfTenants.push(tenant._id);
         propriety.occupiedUnits = parseInt(propriety.occupiedUnits) + 1
         propriety.availableUnits = parseInt(propriety.availableUnits) - 1
         await propriety.save().catch(error => {
@@ -71,11 +84,11 @@ const addTenant = (async (req, res) => {
         });
         res.status(200).json({
             message: 'Élément ajouté avec succès',
-            data: propriety.listOfTenants
+            data: tenant
         });
     } catch (error) {
         log(400, "addTenant => try catch", req.body, error.message)
-        res.status(500).json({ message: 'Erreur lors de l\'ajout de l\'élément' });
+        res.status(500).json({ message: 'Erreur lors de l\'ajout de l\'élément', error : error.message });
     }
 })
 
@@ -237,7 +250,7 @@ const getLandlords = ((req, res) => {
 })
 
 const getLandlord = (async (req, res) => {
-    await Landlord.findById(req.params.id).then(
+    await Landlord.findById(req.userId).populate([{path : "listOfTenants"}, {path : "listOfProprieties"}]).then(
         item => {
             if (!item) {
                 res.send("user doesn't exit")

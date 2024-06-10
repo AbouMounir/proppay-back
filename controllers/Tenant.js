@@ -7,13 +7,15 @@ const getTenants = ((req, res) => {
 })
 
 const getTenant = (async (req, res) => {
-    await Tenant.findOne({ tenantNumber: req.params.tenantNumber }).then(
+     Tenant.findOne({ _id: req.params.id }).populate({"path" : "propriety"}).then(
         item => {
             if (!item) {
-                res.send("user doesn't exit")
+                res.json({"error" : "tenant doesn't exit"})
+            }else{
+                res.json({data : item});
             }
-            res.send(item);
         })
+        .catch(err => res.json({"error" : err.message}))
 })
 
 const signupTenant = (async (req, res) => {
@@ -97,6 +99,34 @@ const confirmTenantPassword = (async (req,res) => {
     }
 })
 
+const updateTenant = async (req, res) => {
+    try {
+        const tenantId = req.params.id;
+
+        // Rechercher le locataire par ID
+        const tenant = await Tenant.findById(tenantId);
+        if (!tenant) {
+            return res.status(404).json({ message: 'Locataire non trouvé' });
+        }
+
+        // Mettre à jour les champs du locataire
+        tenant.tenantNumber = req.body.tenantNumber || tenant.tenantNumber;
+        tenant.tenantFirstName = req.body.tenantFirstName || tenant.tenantFirstName;
+        tenant.tenantLastName = req.body.tenantLastName || tenant.tenantLastName;
+        tenant.tenantAdress = req.body.tenantAdress || tenant.tenantAdress;
+        tenant.urlImage = req.body.urlImage || tenant.urlImage;
+        tenant.tenantPassword = req.body.tenantPassword || tenant.tenantPassword;
+
+        await tenant.save();
+        console.log(tenant);
+
+        res.status(200).json({ message: 'Locataire mis à jour avec succès', tenant });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erreur lors de la mise à jour du locataire', error : error.message });
+    }
+}
+
 
 const updateTenantPassword = (async (req,res) => {
     try {
@@ -144,5 +174,5 @@ const deleteTenant = (async (req, res) => {
     await Tenant.deleteOne({ _id: tenant._id.toString() }).then(result => res.send(result))
 })
 
-export { confirmTenantPassword, deleteTenant, getTenant, getTenants, signinTenant, signupTenant, updateTenantNumber, updateTenantPassword };
+export { confirmTenantPassword, deleteTenant, getTenant, getTenants, signinTenant, signupTenant, updateTenantNumber, updateTenantPassword, updateTenant };
 

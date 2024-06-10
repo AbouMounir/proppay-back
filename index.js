@@ -6,10 +6,11 @@ import swaggerJSDoc from "swagger-jsdoc";
 import { serve, setup } from "swagger-ui-express";
 import { authMiddleware } from "./controllers/middleware/authMiddleware.js";
 import connectDb from "./database/db.js";
-import { default as routerLandlord, default as routerTenant } from "./routes/Landlord.js";
+import { default as routerLandlord, default as routerTenantLord } from "./routes/Landlord.js";
 import routerNotification from "./routes/Notification.js";
 import routerPropriety from "./routes/Propriety.js";
 import routerTransaction from "./routes/Transaction.js";
+import routerTenant from './routes/Tenant.js';
 
 const app = express();
 
@@ -30,7 +31,8 @@ app.get('/', function(req, res) {
 
 // the routes of the app
 // https://proppay-back.vercel.app/
-app.use('/users/tenants', routerTenant)
+app.use('/tenants', routerTenant)
+app.use('/users/tenants', routerTenantLord)
 app.use('/users/landlords', routerLandlord)
 app.use('/proprieties',  routerPropriety)
 app.use('/transactions',  routerTransaction)

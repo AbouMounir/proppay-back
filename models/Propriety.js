@@ -25,10 +25,13 @@ const Propriety = mongoose.model('proprietes', {
     totalUnits: String,
     occupiedUnits: String,
     availableUnits: String,
-    listOfTenants: {
-        type: [Object],
-        default: []
-    },
+    listOfTenants:  [
+        {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "tenants",
+        default: [],
+        },
+    ],
 });
 
 export default Propriety ;

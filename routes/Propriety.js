@@ -1,5 +1,5 @@
 import express from 'express';
-import { addPropriety, deletePropriety, getProprieties, getPropriety } from '../controllers/Propriety.js';
+import { addPropriety, deletePropriety, getProprieties, getPropriety, updatePropriety } from '../controllers/Propriety.js';
 const routerPropriety = express.Router()
 
 /**
@@ -68,6 +68,8 @@ routerPropriety.get('/', getProprieties)
  *           description: propriety added
  */
 routerPropriety.post('/add', addPropriety)
+
+routerPropriety.put('/:id', updatePropriety);
 
 /**
  * @swagger

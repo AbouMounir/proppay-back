@@ -26,14 +26,20 @@ const Landlord = mongoose.model('landlords', {
         type: String
     },
     identity: String,
-    listOfTenants: {
-        type: [Object],
-        default: []
-    },
-    listOfProprieties: {
-        type: [String],
-        default: []
-    },
+    listOfTenants:  [
+        {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "tenants",
+        default: [],
+        },
+    ],
+    listOfProprieties: [
+        {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "proprietes",
+        default: [],
+        },
+    ],
     count: {
         type: Number,
         default: 0

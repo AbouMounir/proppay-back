@@ -22,6 +22,7 @@ import {
     verifyLandloardNumber
 } from '../controllers/Landlord.js';
 import { authMiddleware } from '../controllers/middleware/authMiddleware.js';
+import { updateTenant } from '../controllers/Tenant.js';
 
 // Schema des différents models
 /**
@@ -202,7 +203,7 @@ routerLandlord.get('/',authMiddleware, getLandlords)
  *         "200":
  *           description: The landlord
  */
-routerLandlord.get('/:id', authMiddleware, getLandlord)
+routerLandlord.get('/current', authMiddleware, getLandlord)
 
 /**
  * @swagger
@@ -511,7 +512,8 @@ routerLandlord.post('/verify/number',verifyLandloardNumber)
  *          description: Some error happened
  *
  */
-routerLandlord.put('/add-tenant', addTenant)
+routerLandlord.put('/:id/add-tenant', addTenant)
+routerLandlord.put('/:id', updateTenant);
 /* routerLandlord.put('/:_id',authMiddleware, updateLandlordNumber) */
 
 /**
