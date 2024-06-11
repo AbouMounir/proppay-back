@@ -250,7 +250,7 @@ const getLandlords = ((req, res) => {
 })
 
 const getLandlord = (async (req, res) => {
-    await Landlord.findById(req.userId).populate([{path : "listOfTenants"}, {path : "listOfProprieties"}]).then(
+    await Landlord.findById(req.userId).populate([{path : "listOfTenants"}, {path : "listOfProprieties", populate : {"path" :  "listOfTenants"}}]).then(
         item => {
             if (!item) {
                 res.send("user doesn't exit")
