@@ -23,6 +23,6 @@ routerTenant.post('/signin', signinTenant)
 routerTenant.post('/confirm/password/:tenantNumber', confirmTenantPassword)
 routerTenant.put('/:_id',authMiddleware, updateTenantNumber)
 routerTenant.put(('/update-password/:tenantNumber'),authMiddleware, updateTenantPassword)
-routerTenant.delete('/:tenantNumber',authMiddleware, deleteTenant)
+routerTenant.delete('/:id',authMiddleware, deleteTenant)
 
 export default routerTenant
