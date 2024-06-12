@@ -170,8 +170,8 @@ const updateTenantNumber = (async (req, res) => {
 })
 
 const deleteTenant = (async (req, res) => {
-    const tenant = await Tenant.findOne({ tenantNumber: req.params.tenantNumber })
-    await Tenant.deleteOne({ _id: tenant._id.toString() }).then(result => res.send(result))
+    const tenant = await Tenant.findOne({ _id: req.params.id })
+    await Tenant.deleteOne({ _id: tenant._id.toString() }).then(result => res.json(result))
 })
 
 export { confirmTenantPassword, deleteTenant, getTenant, getTenants, signinTenant, signupTenant, updateTenantNumber, updateTenantPassword, updateTenant };
