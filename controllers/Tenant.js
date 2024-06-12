@@ -1,5 +1,7 @@
 import bcrypt from 'bcrypt';
 import Tenant from '../models/Tenant.js';
+import Landlord from '../models/Landlord.js';
+import Propriety from '../models/Propriety.js';
 
 
 const getTenants = ((req, res) => {
@@ -171,9 +173,35 @@ const updateTenantNumber = (async (req, res) => {
 
 const deleteTenant = (async (req, res) => {
     const tenant = await Tenant.findOne({ _id: req.params.id })
+   
     if(!tenant){
       return  res.json({error : "Tenant not found"});
     }
+
+    const propriety = await Propriety.findById(tenant.propriety);
+    const landlord = await Landlord.findOne({ _id: propriety.landLord });
+    
+   
+    if (!propriety || !landlord) {
+        return res.status(400).json({
+            message: "propriety or landlord doesn't find"
+        })
+    }
+
+    const listOfTenantsP = propriety.listOfTenants
+    const listOfTenantsL = landlord.listOfTenants
+
+    const newListOfTenantsP = listOfTenantsP.filter(id => id !== req.params.id);
+    const newListOfTenantsL = listOfTenantsL.filter(id => id !== req.params.id);
+
+    propriety.listOfTenants = newListOfTenantsP
+    landlord.listOfTenants = newListOfTenantsL
+
+    propriety.landLord = propriety.Landlord;
+
+    await propriety.save()
+    await landlord.save()
+
     await Tenant.deleteOne({ _id: tenant._id.toString() }).then(result => res.json(result))
 })
 

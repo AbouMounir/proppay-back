@@ -67,6 +67,7 @@ const addTenant = (async (req, res) => {
         }
         landlord.listOfTenants.push(tenant._id)
         await landlord.save().catch(error => {
+            res.json({error : error.message})
             // log(400, "addTenant => landlord save catch", req.body, error.message)
             // res.status(500).json({ message: 'landlord save catch' });
         });
@@ -76,9 +77,13 @@ const addTenant = (async (req, res) => {
         }
 
         propriety.listOfTenants.push(tenant._id);
-        propriety.occupiedUnits = parseInt(propriety.occupiedUnits) + 1
-        propriety.availableUnits = parseInt(propriety.availableUnits) - 1
+        propriety.occupiedUnits = parseInt(propriety.occupiedUnits) + 1;
+        propriety.availableUnits = parseInt(propriety.availableUnits) - 1;
+        propriety.landLord = propriety.landLord;
         await propriety.save().catch(error => {
+            console.log("here")
+            console.log(error)
+            return res.json({error : error.message});
             // log(400, "addTenant => propriety save catch", req.body, error.message)
             // res.status(500).json({ message: 'propriety save catch' });
         });
@@ -92,10 +97,12 @@ const addTenant = (async (req, res) => {
     }
 })
 
+
+// not used
 const deleteTenant = (async (req, res) => {
     try {
         const propriety = await Propriety.findById(req.params.id);
-        const landlord = await Landlord.findOne({ landlordNumber: propriety.proprietyId.substr(0, 14) });
+        const landlord = await Landlord.findOne({ _id: propriety.landLord });
 
         if (!propriety || !landlord) {
             res.status(400).json({
