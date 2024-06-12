@@ -67,8 +67,8 @@ const addTenant = (async (req, res) => {
         }
         landlord.listOfTenants.push(tenant._id)
         await landlord.save().catch(error => {
-            log(400, "addTenant => landlord save catch", req.body, error.message)
-            res.status(500).json({ message: 'landlord save catch' });
+            // log(400, "addTenant => landlord save catch", req.body, error.message)
+            // res.status(500).json({ message: 'landlord save catch' });
         });
 
         if (!propriety.listOfTenants) {
