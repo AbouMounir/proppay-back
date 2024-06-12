@@ -1,5 +1,6 @@
 import express from 'express';
 import { addPropriety, deletePropriety, getProprieties, getPropriety, updatePropriety } from '../controllers/Propriety.js';
+import { authMiddleware } from '../controllers/middleware/authMiddleware.js';
 const routerPropriety = express.Router()
 
 /**
@@ -67,7 +68,7 @@ routerPropriety.get('/', getProprieties)
  *         "200":
  *           description: propriety added
  */
-routerPropriety.post('/add', addPropriety)
+routerPropriety.post('/add', authMiddleware , addPropriety)
 
 routerPropriety.put('/:id', updatePropriety);
 

@@ -40,7 +40,8 @@ const addPropriety = (async (req, res) => {
             proofOfPropriety: proofOfPropriety,
             totalUnits: req.body.totalUnits,
             occupiedUnits: req.body.occupiedUnits,
-            availableUnits: req.body.availableUnits
+            availableUnits: req.body.availableUnits,
+            landLord : req.body.userId
         })
         await propriety.save()
         console.log(propriety);
@@ -55,7 +56,7 @@ const addPropriety = (async (req, res) => {
         } */
         
         // const proprietyId = req.body.landlordNumber + '-' + req.body.proprietyName
-        const landlord = await Landlord.findOne({ landlordNumber: req.body.landlordNumber });
+        const landlord = await Landlord.findOne({ landlordNumber: req.userId });
         if(landlord){
             if (!landlord.listOfProprieties) {
                 landlord.listOfProprieties = [];
@@ -132,12 +133,12 @@ const deletePropriety = (async (req, res) => {
     try {
         const propriety = await Propriety.findById(req.params.id);
         const elt = propriety.proprietyId;
-        const landlord = await Landlord.findOne({ landlordNumber: propriety.proprietyId.substr(0, 14) });
+        const landlord = await Landlord.findById(propriety.landLord);
         if (!landlord) {
-            return res.status(404).send('no user find')
+            return res.status(404).send('no user find');
         }
         const proprieties = landlord.listOfProprieties
-        const newProprieties = proprieties.filter(proprietyId => proprietyId !== elt);
+        const newProprieties = proprieties.filter(proprietyId => proprietyId !== req.params.id);
         landlord.listOfProprieties = newProprieties;
         await landlord.save();
         await Propriety.deleteOne({ _id: propriety._id.toString() })
