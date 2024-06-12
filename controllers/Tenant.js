@@ -171,6 +171,9 @@ const updateTenantNumber = (async (req, res) => {
 
 const deleteTenant = (async (req, res) => {
     const tenant = await Tenant.findOne({ _id: req.params.id })
+    if(!tenant){
+      return  res.json({error : "Tenant not found"});
+    }
     await Tenant.deleteOne({ _id: tenant._id.toString() }).then(result => res.json(result))
 })
 
