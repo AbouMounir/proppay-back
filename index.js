@@ -11,6 +11,8 @@ import routerNotification from "./routes/Notification.js";
 import routerPropriety from "./routes/Propriety.js";
 import routerTransaction from "./routes/Transaction.js";
 import routerTenant from './routes/Tenant.js';
+import winston  from 'winston';
+
 
 const app = express();
 
@@ -20,6 +22,23 @@ app.use(cors("*"));
 
 dotenv.config({ path: './config/.env' })
 connectDb();
+
+export const logger = winston.createLogger({
+    // Log only if level is less than (meaning more severe) or equal to this
+    level: "info",
+    // Use timestamp and printf to create a standard log format
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.printf(
+        (info) => `${info.timestamp} ${info.level}: ${info.message}`
+      )
+    ),
+    // Log to the console and a file
+    transports: [
+      new winston.transports.Console(),
+      new winston.transports.File({ filename: "logs/app.log" }),
+    ],
+  });
 
 /* // set the view engine to ejs
 app.set('view engine', 'ejs');

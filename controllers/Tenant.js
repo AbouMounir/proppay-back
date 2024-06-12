@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import Tenant from '../models/Tenant.js';
 import Landlord from '../models/Landlord.js';
 import Propriety from '../models/Propriety.js';
+import { logger } from '../index.js';
 
 
 const getTenants = ((req, res) => {
@@ -172,6 +173,7 @@ const updateTenantNumber = (async (req, res) => {
 })
 
 const deleteTenant = (async (req, res) => {
+
     const tenant = await Tenant.findOne({ _id: req.params.id })
    
     if(!tenant){
