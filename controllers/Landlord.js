@@ -79,8 +79,8 @@ const addTenant = (async (req, res) => {
         propriety.occupiedUnits = parseInt(propriety.occupiedUnits) + 1
         propriety.availableUnits = parseInt(propriety.availableUnits) - 1
         await propriety.save().catch(error => {
-            log(400, "addTenant => propriety save catch", req.body, error.message)
-            res.status(500).json({ message: 'propriety save catch' });
+            // log(400, "addTenant => propriety save catch", req.body, error.message)
+            // res.status(500).json({ message: 'propriety save catch' });
         });
         res.status(200).json({
             message: 'Élément ajouté avec succès',
