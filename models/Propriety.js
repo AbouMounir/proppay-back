@@ -47,12 +47,11 @@ const Propriety = mongoose.model('proprietes', {
         default: [],
         },
     ],
-    landLord:  
-        {
+    landLord:  {
         type: mongoose.Schema.Types.ObjectId,
         ref: "landlords",
         default: ""
-        },
+    }
 });
 
 export default Propriety ;

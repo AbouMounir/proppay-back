@@ -91,7 +91,7 @@ routerPropriety.put('/:id', updatePropriety);
  *           required: true
  *           description: Id of a propriety
  */
-routerPropriety.delete('/:id', deletePropriety)
+routerPropriety.delete('/:id', authMiddleware, deletePropriety)
 /* routerImage.get('/upload/:id',getImage) */
 
 
