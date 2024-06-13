@@ -2,12 +2,14 @@ import mongoose from "mongoose";
 
 const transactionSchema = new mongoose.Schema({
     tenant: {
-        type: String, // Modèle pour les locataires
-        required: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "tenants",
+        default: ""
     },
     landlord: {
-        type: String,
-        required: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "landlords",
+        default: ""
     },
     typeOfTransaction: {
         type: String,

@@ -88,43 +88,45 @@ const createTransaction = async (req, res) => {
     try {
         let do_url = ""
         let shortDoUrl = ""
-        const landlord = await Landlord.findOne({ landlordNumber: req.body.landlordNumber })
+        const landlord = await Landlord.findOne({ _id: req.body.landlordId }).populate({"path" : "listOfTenants"});
         if (!landlord) {
-            res.send("landlord doesn't exist")
+            res.send("landlord doesn't exist");
         }
-        const tenant = landlord.listOfTenants.filter(tenant => tenant.tenantNumber == req.body.tenantNumber)
+        const tenant = landlord.listOfTenants.find(tenant => tenant._id == req.body.tenantId)
         if (!tenant) {
-            res.send("tenant doesn't exist")
+            res.send("tenant doesn't exist");
         }
-        const proprietyIdBody = landlord.landlordNumber + "-" + tenant[0].proprietyName
-        const propriety_id = landlord.listOfProprieties.filter(proprietyId => proprietyId == proprietyIdBody)
-        const propriety = await Propriety.findOne({ proprietyId: propriety_id[0] })
+        const propriety = tenant.propriety;
         if (!propriety) {
-            res.send("propriety doesn't exist")
+            return res.json({error : "propriety doesn't exist"})
         }
-
-        await sendRentReceipt(landlord.landlordFirstname, landlord.landlordLastname, landlord.landlordNumber, tenant[0].tenantFirstname, tenant[0].tenantLastname, tenant[0].tenantNumber, req.body.paymentMethod, req.body.amount, tenant[0].appartementType, tenant[0].proprietyName, propriety.proprietyAdress).then(data => do_url = data)
-
-        await shortenUrl(do_url).then(data => shortDoUrl = data)
-        const transaction = await new Transaction({
-            tenant: req.body.tenantNumber,
-            landlord: req.body.landlordNumber,
-            typeOfTransaction: req.body.typeOfTransaction,
-            amount: req.body.amount,
-            status: req.body.status,
-            paymentMethod: req.body.paymentMethod,
-            paymentReceipt: shortDoUrl
+        await sendRentReceipt(landlord.landlordFirstname, landlord.landlordLastname, landlord.landlordNumber, tenant.tenantFirstName, tenant.tenantLastName, tenant.tenantNumber, req.body.paymentMethod, req.body.amount, tenant.appartementType, tenant.proprietyName, propriety.proprietyAdress)
+        .then(async (data) => {
+            const do_url = data
+            shortenUrl(do_url).then(async (data) => {
+                shortDoUrl = data;
+                const transaction = new Transaction({
+                    tenant: req.body.tenantId,
+                    landlord: req.body.landlordId,
+                    typeOfTransaction: req.body.typeOfTransaction,
+                    amount: req.body.amount,
+                    status: req.body.status,
+                    paymentMethod: req.body.paymentMethod,
+                    paymentReceipt: shortDoUrl
+                })
+                landlord.count += parseInt(req.body.amount)
+                await landlord.save()
+                await transaction.save()
+                res.status(200).json({
+                    message: 'Transaction ajouté avec succès',
+                    data: transaction
+                });
+            })
+            .catch(err => res.json({error: err}))
         })
+        .catch(err => res.json({error : err}))
 
-        landlord.count += parseInt(req.body.amount)
-
-        await landlord.save()
-        await transaction.save()
-
-        res.status(200).json({
-            message: 'Transaction ajouté avec succès',
-            data: transaction
-        });
+       
     } catch (error) {
         console.error(error);
         res.status(500).send(error);
@@ -198,15 +200,29 @@ const sendRentReceipt = async (Lfirstname, Llastname, Lnumber, Tfirstname, Tlast
 
     try {
         const pdfUrl = await generateAndUploadPDF(template,data[0],num)
-        const shortDoUrl = await shortenUrl(pdfUrl)
-        const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
-        const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\n Nous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\n Vous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${shortDoUrl}.\n L'équipe Nanbau vous remercie !`
-        console.log("Generation et upload of pdf successed :" + pdfUrl);
-        console.log(msg);
-        const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumber}&sender=${sender}&msg=${msg}`;
-        return pdfUrl
+        .then(async () =>{
+            const shortDoUrl =  shortenUrl(pdfUrl)
+            .then((data) => {
+                const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
+                const msg = `Bonjour M. ${data[0].Tfirstname} ${data[0].Tlastname},\n Nous vous remercions pour le paiement de votre loyer correspondant à la somme de ${data[0].total} FCFA sur notre plateforme.\n Vous pouvez visualiser et télécharger votre quittance de loyer à partir du lien suivant : ${shortDoUrl}.\n L'équipe Nanbau vous remercie !`
+                console.log("Generation et upload of pdf successed :" + pdfUrl);
+                console.log(msg);
+                const apiExterne = `https://api-public-2.mtarget.fr/messages?username=${userName}&password=${password}&serviceid=${serviceid}&msisdn=${tenantNumber}&sender=${sender}&msg=${msg}`;
+                return pdfUrl
+            })
+            .catch(err => {
+                console.log("erreur short link" + err);
+                return  err;
+            })
+        })
+        .catch(err => {
+            console.log("generation pdf" + err);
+             return  err;
+        });
+       
     } catch (error) {
         console.log("Error on generation et upload of pdf :" + error);
+        return error
     }
     
 

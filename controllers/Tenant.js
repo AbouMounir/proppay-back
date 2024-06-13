@@ -234,7 +234,6 @@ const addTenant = (async (req, res) => {
             propriety : req.body.proprietyId
         }
 
-        console.log(req.body.tenantLastname)
         const tenant = new Tenant(locataire);
         await tenant.save();
 
@@ -277,7 +276,6 @@ const addTenant = (async (req, res) => {
             data: tenant
         });
     } catch (error) {
-        log(400, "addTenant => try catch", req.body, error.message)
         res.status(500).json({ message: 'Erreur lors de l\'ajout de l\'élément', error : error.message });
     }
 })

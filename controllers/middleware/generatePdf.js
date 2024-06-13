@@ -10,7 +10,6 @@ export async function generateAndUploadPDF(template, data, num) {
 
     const chromiumPack = "https://github.com/AbouMounir/proppay-back/releases/download/v1.0.1/chromium-v123.0.1-pack.tar"
 
-    
     const browser = await puppeteer.launch({
         args: chromium.args,
         executablePath: await chromium.executablePath(chromiumPack),

@@ -20,7 +20,6 @@ export const shortenUrl = async (longUrl) => {
             throw new Error('Erreur lors du raccourcissement du lien');
         }
     } catch (error) {
-        console.error('Erreur:', error);
-        return { error: 'Une erreur est survenue lors du traitement de votre demande' };
+        return error;
     }
 };
