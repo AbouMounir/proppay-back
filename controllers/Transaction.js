@@ -146,7 +146,6 @@ const getoutTransaction = async (req, res) => {
             amount: req.body.amount,
             status: req.body.status,
             paymentMethod: req.body.paymentMethod,
-            property : req.body.propertyId
         })
 
         transaction.save()
@@ -172,7 +171,7 @@ const finalizeTransaction = async (req, res) => {
     //hey
     const landlord = transaction.landlord
     const tenant = transaction.tenant;
-    const property = transaction.property;
+    const property = Propriety.findOne({'_id' : tenant.propriety});
     await sendRentReceipt(landlord.landlordFirstname, landlord.landlordLastname, landlord.landlordNumber, tenant.tenantFirstName, tenant.tenantLastName, tenant.tenantNumber, transaction.paymentMethod, transaction.amount, tenant.appartementType, tenant.proprietyName, property.proprietyAdress)
     .then(async () => {
             transaction.status = req.body.status;

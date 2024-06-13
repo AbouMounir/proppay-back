@@ -23,13 +23,11 @@ const task1 = nodeCron.schedule('30 21 14 4 * *', async () => {
 
 const createNotification = (async(req,res) => {
     try {
-        const notification = await new Notification({
+        const notification = new Notification({
             titleNotification: req.body.titleNotification,
             contentNotification: req.body.contentNotification,
         })
-
         await notification.save()
-
         res.status(200).json({
             message: 'Notification ajouté avec succès',
             data: notification
