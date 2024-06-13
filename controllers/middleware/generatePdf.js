@@ -12,8 +12,7 @@ export async function generateAndUploadPDF(template, data, num) {
     try {
     const chromiumPack = "https://github.com/AbouMounir/proppay-back/releases/download/v1.0.1/chromium-v123.0.1-pack.tar"
 
-
-    console.log(chromium.headless)
+    // ici j'ai un bug mismatch : j'ai checké sur le net plusieurs personnes ont ce soucis, je ne sais pas comment tu avais fait et ça fonctionnait
     const browser = await puppeteer.launch({
         args: chromium.args,
         executablePath: await chromium.executablePath(chromiumPack),

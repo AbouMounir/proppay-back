@@ -100,33 +100,7 @@ const createTransaction = async (req, res) => {
         if (!propriety) {
             return res.json({error : "propriety doesn't exist"})
         }
-        // cela doit etre fait quand la paiement est validé
-        // await sendRentReceipt(landlord.landlordFirstname, landlord.landlordLastname, landlord.landlordNumber, tenant.tenantFirstName, tenant.tenantLastName, tenant.tenantNumber, req.body.paymentMethod, req.body.amount, tenant.appartementType, tenant.proprietyName, propriety.proprietyAdress)
-        // .then(async (data) => {
-        //     const do_url = data
-        //     shortenUrl(do_url).then(async (data) => {
-        //         shortDoUrl = data;
-        //         const transaction = new Transaction({
-        //             tenant: req.body.tenantId,
-        //             landlord: req.body.landlordId,
-        //             typeOfTransaction: req.body.typeOfTransaction,
-        //             amount: req.body.amount,
-        //             status: req.body.status,
-        //             paymentMethod: req.body.paymentMethod,
-        //             paymentReceipt: shortDoUrl
-        //         })
-        //         landlord.count += parseInt(req.body.amount)
-        //         await landlord.save()
-        //         await transaction.save()
-        //         res.status(200).json({
-        //             message: 'Transaction ajouté avec succès',
-        //             data: transaction
-        //         });
-        //     })
-        //     .catch(err => res.json({error: err}))
-        // })
-        // .catch(err => res.json({error : err}))
-
+       
         const transaction = new Transaction({
             tenant: req.body.tenantId,
             landlord: req.body.landlordId,
@@ -134,6 +108,7 @@ const createTransaction = async (req, res) => {
             amount: req.body.amount,
             status: req.body.status,
             paymentMethod: req.body.paymentMethod,
+            property : req.body.propertyId
         })
         landlord.count += parseInt(req.body.amount)
         await landlord.save()
@@ -171,6 +146,7 @@ const getoutTransaction = async (req, res) => {
             amount: req.body.amount,
             status: req.body.status,
             paymentMethod: req.body.paymentMethod,
+            property : req.body.propertyId
         })
 
         transaction.save()
@@ -185,6 +161,30 @@ const getoutTransaction = async (req, res) => {
     }
 }
 
+
+const finalizeTransaction = async (req, res) => {
+    const transaction = Transaction.findById(req.body.transactionId).populate([{"path" : "landlord"}, {"path" : "tenant"}, {"path" : "property"} ]);
+    if(!transaction) {
+        res.status(404).json({
+            error: "transaction not found"
+        });
+    }
+    const landlord = transaction.landlord
+    const tenant = transaction.tenant;
+    const property = transaction.property;
+    await sendRentReceipt(landlord.landlordFirstname, landlord.landlordLastname, landlord.landlordNumber, tenant.tenantFirstName, tenant.tenantLastName, tenant.tenantNumber, transaction.paymentMethod, transaction.amount, tenant.appartementType, tenant.proprietyName, property.proprietyAdress)
+    .then(async () => {
+            transaction.status = req.body.status;
+            landlord.count += parseInt(req.body.amount)
+            await landlord.save()
+            await transaction.save()
+            res.status(200).json({
+                message: 'Transaction updated successfully',
+                data: transaction
+            });
+    })
+    .catch(err => res.json({error : err}))
+}
 const sendRentReceipt = async (Lfirstname, Llastname, Lnumber, Tfirstname, Tlastname, Tnumber, paymentMethod, amount, proprietyType, proprietyName, proprietyAdress) => {
     const d = new Date();
     let month = monthes[d.getMonth()];
@@ -206,9 +206,9 @@ const sendRentReceipt = async (Lfirstname, Llastname, Lnumber, Tfirstname, Tlast
         loyer: amount,
         total: amount,
         tenantRent: amount,
-        proprietyType: "test",
-        proprietyName: 'test',
-        proprietyAdress: 'test',
+        proprietyType: proprietyType,
+        proprietyName: proprietyName,
+        proprietyAdress: proprietyAdress,
         url: `https://${process.env.BUCKET}.ams3.cdn.digitaloceanspaces.com/propay_doc/logo-propay.png`
     }]
     const num = Math.floor(Math.random() * 10);
@@ -341,5 +341,5 @@ const getUploadLink = async (req, res) => {
 //sendRentReceipt()
 
 
-export { createTransaction, getLandlordTransactionsInfos, getTransactionInfo, getTransactionsInfos, getUploadLink, getoutTransaction, sendPaymentLink, sendRentReceipt };
+export { finalizeTransaction, createTransaction, getLandlordTransactionsInfos, getTransactionInfo, getTransactionsInfos, getUploadLink, getoutTransaction, sendPaymentLink, sendRentReceipt };
 

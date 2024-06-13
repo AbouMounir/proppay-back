@@ -1,5 +1,5 @@
 import express from 'express';
-import { createTransaction, getLandlordTransactionsInfos, getTransactionInfo, getTransactionsInfos, getUploadLink, getoutTransaction, sendPaymentLink } from '../controllers/Transaction.js';
+import { createTransaction, finalizeTransaction, getLandlordTransactionsInfos, getTransactionInfo, getTransactionsInfos, getUploadLink, getoutTransaction, sendPaymentLink } from '../controllers/Transaction.js';
 import { authMiddleware } from '../controllers/middleware/authMiddleware.js';
 const routerTransaction = express.Router()
 
@@ -70,6 +70,7 @@ const routerTransaction = express.Router()
  */
 routerTransaction.post('/send', sendPaymentLink)
 routerTransaction.post('/payment/rent', createTransaction)
+routerTransaction.post('/payment/finalize', finalizeTransaction)
 routerTransaction.post('/payment/getout',authMiddleware,getoutTransaction)
 routerTransaction.get('/info/:id',getTransactionInfo)
 routerTransaction.get('/landlord/infos',authMiddleware, getLandlordTransactionsInfos)
