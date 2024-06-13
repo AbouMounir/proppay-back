@@ -169,6 +169,7 @@ const finalizeTransaction = async (req, res) => {
             error: "transaction not found"
         });
     }
+    //hey
     const landlord = transaction.landlord
     const tenant = transaction.tenant;
     const property = transaction.property;
