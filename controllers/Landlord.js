@@ -32,104 +32,10 @@ let codeTimestamps = {};
 
 // Les différents endpoints
 
-const addTenant = (async (req, res) => {
-    try {
-
-        const totalOfUnpaidRents = parseInt(req.body.nbOfUnpaidRents) * parseInt(req.body.tenantRent)
-        const locataire = {
-            tenantNumber: req.body.tenantNumber,
-            proprietyName: req.body.proprietyName,
-            tenantFirstName: req.body.tenantFirstname,
-            tenantLastName: req.body.tenantLastname,
-            appartementNumber: req.body.appartementNumber,
-            tenantRent: req.body.tenantRent,
-            appartementType: req.body.appartementType,
-            nbOfUnpaidRents: req.body.nbOfUnpaidRents,
-            totalOfUnpaidRents: totalOfUnpaidRents.toString(),
-            propriety : req.body.proprietyId
-        }
-
-        console.log(req.body.tenantLastname)
-        const tenant = new Tenant(locataire);
-        await tenant.save();
-
-        const landlord = await Landlord.findOne({ _id: req.params.id });
-        const propriety = await Propriety.findOne({ _id : req.body.proprietyId });
-
-        if (!propriety || !landlord) {
-            res.status(400).json({
-                message: "propriety or landlord doesn't find"
-            })
-        }
-
-        if (!landlord.listOfTenants) {
-            landlord.listOfTenants = [];
-        }
-        landlord.listOfTenants.push(tenant._id)
-        await landlord.save().catch(error => {
-            res.json({error : error.message})
-            // log(400, "addTenant => landlord save catch", req.body, error.message)
-            // res.status(500).json({ message: 'landlord save catch' });
-        });
-
-        if (!propriety.listOfTenants) {
-            propriety.listOfTenants = [];
-        }
-
-        propriety.listOfTenants.push(tenant._id);
-        propriety.occupiedUnits = parseInt(propriety.occupiedUnits) + 1;
-        propriety.availableUnits = parseInt(propriety.availableUnits) - 1;
-        propriety.landLord = propriety.landLord;
-        await propriety.save().catch(error => {
-            console.log("here")
-            console.log(error)
-            return res.json({error : error.message});
-            // log(400, "addTenant => propriety save catch", req.body, error.message)
-            // res.status(500).json({ message: 'propriety save catch' });
-        });
-        res.status(200).json({
-            message: 'Élément ajouté avec succès',
-            data: tenant
-        });
-    } catch (error) {
-        log(400, "addTenant => try catch", req.body, error.message)
-        res.status(500).json({ message: 'Erreur lors de l\'ajout de l\'élément', error : error.message });
-    }
-})
 
 
-// not used
-const deleteTenant = (async (req, res) => {
-    try {
-        const propriety = await Propriety.findById(req.params.id);
-        const landlord = await Landlord.findOne({ _id: propriety.landLord });
 
-        if (!propriety || !landlord) {
-            res.status(400).json({
-                message: "propriety or landlord doesn't find"
-            })
-        }
 
-        const listOfTenantsP = propriety.listOfTenants
-        const listOfTenantsL = landlord.listOfTenants
-
-        const newListOfTenantsP = listOfTenantsP.filter(tenant => tenant.appartementNumber !== req.body.appartementNumber);
-        const newListOfTenantsL = listOfTenantsL.filter(tenant => tenant.appartementNumber !== req.body.appartementNumber);
-
-        propriety.listOfTenants = newListOfTenantsP
-        landlord.listOfTenants = newListOfTenantsL
-
-        await propriety.save()
-        await landlord.save()
-        res.send("Tenant correctly removed")
-    } catch (error) {
-        log(400, "deleteTenant => try catch", req.body, error.message)
-        res.json({
-            message: "deleteTenant doesn't work",
-            error: error.message
-        })
-    }
-})
 
 const sendAuthOTP = (async (req, res) => {
     try {
@@ -339,7 +245,6 @@ const updateProfil = async (req, res) => {
                     if (!user) {
                         return res.status(404).json({ message: "Utilisateur non trouvé" });
                     }
-                    console.log(req.body);
                     user.landlordFirstname = req.body.profilImage || user.profilImage;
                     user.landlordFirstname = req.body.landlordFirstname || user.landlordFirstname;
                     user.landlordLastname = req.body.landlordLastname || user.landlordLastname;
@@ -365,22 +270,14 @@ const updateProfil = async (req, res) => {
 
 const updateProfilImage = (async (req, res) => {
     try {
-        await upload('profile', 'photos de profil')(req, res, async function (error) {
-            if (error) {
-                //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
-                res.json({
-                    message: "upload doesn't work",
-                    error: error.message
-                })
-            }
+       
             console.log("user id" +  req.userId)
             await Landlord.findOne({ _id: req.userId  })
                 .then(async user => {
                     if (!user) {
                         return res.status(404).json({ message: "user n'existe pas" })
                     }
-                    console.log(req.file);
-                    user.profilImage = req.file.location
+                    user.profilImage = req.profilImage
                     await user.save();
                     res.send(user)
                 })
@@ -391,7 +288,7 @@ const updateProfilImage = (async (req, res) => {
                         error: error.message
                     })
                 })
-        })
+     
     } catch (error) {
         //logger.info("status code : 400" + " request object : " + JSON.stringify(req.body) + " API method name : POST : updateProfilImage" + " Error message :" + error.message);
         res.json({
@@ -598,5 +495,5 @@ const signinLandlord = (async (req, res) => {
 })
 
 
-export { addTenant, confirmLandlordPassword, confirmSignupLandlord, deleteLandlord, deleteTenant, getLandlord, getLandlordProprieties, getLandlordTenants, getLandlords, getPhotoProfil, sendAuthOTP, signinLandlord, signupLandlord, updateLandlordPassword, updateProfil, updateProfilImage, verifyAuthOTP, verifyLandloardNumber };
+export { confirmLandlordPassword, confirmSignupLandlord, deleteLandlord, getLandlord, getLandlordProprieties, getLandlordTenants, getLandlords, getPhotoProfil, sendAuthOTP, signinLandlord, signupLandlord, updateLandlordPassword, updateProfil, updateProfilImage, verifyAuthOTP, verifyLandloardNumber };
 

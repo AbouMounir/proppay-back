@@ -181,14 +181,24 @@ const deleteTenant = (async (req, res) => {
     }
 
     const propriety = await Propriety.findById(tenant.propriety);
-    const landlord = await Landlord.findOne({ _id: propriety.landLord });
+    
     
    
-    if (!propriety || !landlord) {
+    if (!propriety) {
         return res.status(400).json({
-            message: "propriety or landlord doesn't find"
+            message: "tenant isn't in propriety"
         })
     }
+
+    const landlord = await Landlord.findOne({ _id: propriety.landLord });
+
+
+    if (!landlord) {
+        return res.status(400).json({
+            message: "landlord doesn't find"
+        })
+    }
+
 
     const listOfTenantsP = propriety.listOfTenants
     const listOfTenantsL = landlord.listOfTenants
@@ -207,5 +217,103 @@ const deleteTenant = (async (req, res) => {
     await Tenant.deleteOne({ _id: tenant._id.toString() }).then(result => res.json(result))
 })
 
-export { confirmTenantPassword, deleteTenant, getTenant, getTenants, signinTenant, signupTenant, updateTenantNumber, updateTenantPassword, updateTenant };
+const addTenant = (async (req, res) => {
+    try {
+
+        const totalOfUnpaidRents = parseInt(req.body.nbOfUnpaidRents) * parseInt(req.body.tenantRent)
+        const locataire = {
+            tenantNumber: req.body.tenantNumber,
+            proprietyName: req.body.proprietyName,
+            tenantFirstName: req.body.tenantFirstname,
+            tenantLastName: req.body.tenantLastname,
+            appartementNumber: req.body.appartementNumber,
+            tenantRent: req.body.tenantRent,
+            appartementType: req.body.appartementType,
+            nbOfUnpaidRents: req.body.nbOfUnpaidRents,
+            totalOfUnpaidRents: totalOfUnpaidRents.toString(),
+            propriety : req.body.proprietyId
+        }
+
+        console.log(req.body.tenantLastname)
+        const tenant = new Tenant(locataire);
+        await tenant.save();
+
+        const landlord = await Landlord.findOne({ _id: req.params.id });
+        const propriety = await Propriety.findOne({ _id : req.body.proprietyId });
+
+        if (!propriety || !landlord) {
+            res.status(400).json({
+                message: "propriety or landlord doesn't find"
+            })
+        }
+
+        if (!landlord.listOfTenants) {
+            landlord.listOfTenants = [];
+        }
+        landlord.listOfTenants.push(tenant._id)
+        await landlord.save().catch(error => {
+            res.json({error : error.message})
+            // log(400, "addTenant => landlord save catch", req.body, error.message)
+            // res.status(500).json({ message: 'landlord save catch' });
+        });
+
+        if (!propriety.listOfTenants) {
+            propriety.listOfTenants = [];
+        }
+
+        propriety.listOfTenants.push(tenant._id);
+        propriety.occupiedUnits = parseInt(propriety.occupiedUnits) + 1;
+        propriety.availableUnits = parseInt(propriety.availableUnits) - 1;
+        propriety.landLord = propriety.landLord;
+        await propriety.save().catch(error => {
+            console.log("here")
+            console.log(error)
+            return res.json({error : error.message});
+            // log(400, "addTenant => propriety save catch", req.body, error.message)
+            // res.status(500).json({ message: 'propriety save catch' });
+        });
+        res.status(200).json({
+            message: 'Élément ajouté avec succès',
+            data: tenant
+        });
+    } catch (error) {
+        log(400, "addTenant => try catch", req.body, error.message)
+        res.status(500).json({ message: 'Erreur lors de l\'ajout de l\'élément', error : error.message });
+    }
+})
+
+// not used
+// const deleteTenant = (async (req, res) => {
+//     try {
+//         const propriety = await Propriety.findById(req.params.id);
+//         const landlord = await Landlord.findOne({ _id: propriety.landLord });
+
+//         if (!propriety || !landlord) {
+//             res.status(400).json({
+//                 message: "propriety or landlord doesn't find"
+//             })
+//         }
+
+//         const listOfTenantsP = propriety.listOfTenants
+//         const listOfTenantsL = landlord.listOfTenants
+
+//         const newListOfTenantsP = listOfTenantsP.filter(tenant => tenant.appartementNumber !== req.body.appartementNumber);
+//         const newListOfTenantsL = listOfTenantsL.filter(tenant => tenant.appartementNumber !== req.body.appartementNumber);
+
+//         propriety.listOfTenants = newListOfTenantsP
+//         landlord.listOfTenants = newListOfTenantsL
+
+//         await propriety.save()
+//         await landlord.save()
+//         res.send("Tenant correctly removed")
+//     } catch (error) {
+//         log(400, "deleteTenant => try catch", req.body, error.message)
+//         res.json({
+//             message: "deleteTenant doesn't work",
+//             error: error.message
+//         })
+//     }
+// })
+
+export { addTenant, confirmTenantPassword, deleteTenant, getTenant, getTenants, signinTenant, signupTenant, updateTenantNumber, updateTenantPassword, updateTenant };
 

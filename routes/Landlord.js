@@ -2,11 +2,9 @@ import express from 'express';
 const routerLandlord = express.Router()
 
 import {
-    addTenant,
     confirmLandlordPassword,
     confirmSignupLandlord,
     deleteLandlord,
-    deleteTenant,
     getLandlord,
     getLandlordProprieties,
     getLandlordTenants,
@@ -22,7 +20,7 @@ import {
     verifyLandloardNumber
 } from '../controllers/Landlord.js';
 import { authMiddleware } from '../controllers/middleware/authMiddleware.js';
-import { updateTenant } from '../controllers/Tenant.js';
+import { addTenant, updateTenant } from '../controllers/Tenant.js';
 
 // Schema des différents models
 /**
@@ -252,6 +250,8 @@ routerLandlord.get('/photo-profil/:id', getPhotoProfil)
  *           description: The landlord proprieties
  */
 routerLandlord.get('/proprieties/:id', getLandlordProprieties)
+
+routerLandlord.put('/:id/add-tenant', addTenant)
 
 /**
  * @swagger
@@ -512,8 +512,7 @@ routerLandlord.post('/verify/number',verifyLandloardNumber)
  *          description: Some error happened
  *
  */
-routerLandlord.put('/:id/add-tenant', addTenant)
-routerLandlord.put('/:id', updateTenant);
+
 /* routerLandlord.put('/:_id',authMiddleware, updateLandlordNumber) */
 
 /**
@@ -682,7 +681,7 @@ routerLandlord.delete('/:id',authMiddleware, deleteLandlord)
  *                  "tenantNumber": "0543226871"
  *                  "appartementNumber": "R1-03"
  */
-routerLandlord.delete('/delete-tenant/:id', deleteTenant)
+
 
 
 export default routerLandlord

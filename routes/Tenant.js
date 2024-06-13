@@ -10,9 +10,11 @@ import {
     signupTenant,
     updateTenant,
     updateTenantNumber,
-    updateTenantPassword
+    updateTenantPassword,
+    addTenant
 } from '../controllers/Tenant.js';
 import { authMiddleware } from '../controllers/middleware/authMiddleware.js';
+
 
 
 routerTenant.get('/',authMiddleware, getTenants)
@@ -24,5 +26,10 @@ routerTenant.post('/confirm/password/:tenantNumber', confirmTenantPassword)
 routerTenant.put('/:_id',authMiddleware, updateTenantNumber)
 routerTenant.put(('/update-password/:tenantNumber'),authMiddleware, updateTenantPassword)
 routerTenant.delete('/:id',authMiddleware, deleteTenant)
+
+
+
+routerTenant.put('/:id', updateTenant);
+routerTenant.delete('/delete-tenant/:id', deleteTenant)
 
 export default routerTenant
