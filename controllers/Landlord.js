@@ -250,6 +250,7 @@ const updateProfil = async (req, res) => {
                     user.landlordLastname = req.body.landlordLastname || user.landlordLastname;
                     user.landlordAdress = req.body.landlordAdress || user.landlordAdress;
                     user.identity = req.body.identity || user.identity;
+                    user.notification = req.body.notification || user.notification;
                     await user.save();
                     res.send(user);
                 })

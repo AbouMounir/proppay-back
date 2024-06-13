@@ -43,6 +43,10 @@ const Landlord = mongoose.model('landlords', {
     count: {
         type: Number,
         default: 0
+    },
+    notification : {
+        type : String,
+        default : ""
     }
 });
 

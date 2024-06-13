@@ -146,6 +146,7 @@ const getoutTransaction = async (req, res) => {
             amount: req.body.amount,
             status: req.body.status,
             paymentMethod: req.body.paymentMethod,
+            property : req.body.propertyId
         })
 
         transaction.save()
@@ -162,16 +163,17 @@ const getoutTransaction = async (req, res) => {
 
 
 const finalizeTransaction = async (req, res) => {
-    const transaction = Transaction.findById(req.body.transactionId).populate([{"path" : "landlord"}, {"path" : "tenant"}]);
+    const transaction = Transaction.findById(req.body.transactionId).populate([{"path" : "landlord"}, {"path" : "tenant"}, {"path" : "property"} ]);
     if(!transaction) {
         res.status(404).json({
             error: "transaction not found"
         });
     }
     //hey
+    //verifier en fonction du type de transaction
     const landlord = transaction.landlord
     const tenant = transaction.tenant;
-    const property = Propriety.findOne({'_id' : tenant.propriety});
+    const property = transaction.propriety;
     await sendRentReceipt(landlord.landlordFirstname, landlord.landlordLastname, landlord.landlordNumber, tenant.tenantFirstName, tenant.tenantLastName, tenant.tenantNumber, transaction.paymentMethod, transaction.amount, tenant.appartementType, tenant.proprietyName, property.proprietyAdress)
     .then(async () => {
             transaction.status = req.body.status;
