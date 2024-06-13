@@ -101,47 +101,47 @@ const createTransaction = async (req, res) => {
             return res.json({error : "propriety doesn't exist"})
         }
         // cela doit etre fait quand la paiement est validé
-        await sendRentReceipt(landlord.landlordFirstname, landlord.landlordLastname, landlord.landlordNumber, tenant.tenantFirstName, tenant.tenantLastName, tenant.tenantNumber, req.body.paymentMethod, req.body.amount, tenant.appartementType, tenant.proprietyName, propriety.proprietyAdress)
-        .then(async (data) => {
-            const do_url = data
-            shortenUrl(do_url).then(async (data) => {
-                shortDoUrl = data;
-                const transaction = new Transaction({
-                    tenant: req.body.tenantId,
-                    landlord: req.body.landlordId,
-                    typeOfTransaction: req.body.typeOfTransaction,
-                    amount: req.body.amount,
-                    status: req.body.status,
-                    paymentMethod: req.body.paymentMethod,
-                    paymentReceipt: shortDoUrl
-                })
-                landlord.count += parseInt(req.body.amount)
-                await landlord.save()
-                await transaction.save()
-                res.status(200).json({
-                    message: 'Transaction ajouté avec succès',
-                    data: transaction
-                });
-            })
-            .catch(err => res.json({error: err}))
-        })
-        .catch(err => res.json({error : err}))
-
-        // const transaction = new Transaction({
-        //     tenant: req.body.tenantId,
-        //     landlord: req.body.landlordId,
-        //     typeOfTransaction: req.body.typeOfTransaction,
-        //     amount: req.body.amount,
-        //     status: req.body.status,
-        //     paymentMethod: req.body.paymentMethod,
+        // await sendRentReceipt(landlord.landlordFirstname, landlord.landlordLastname, landlord.landlordNumber, tenant.tenantFirstName, tenant.tenantLastName, tenant.tenantNumber, req.body.paymentMethod, req.body.amount, tenant.appartementType, tenant.proprietyName, propriety.proprietyAdress)
+        // .then(async (data) => {
+        //     const do_url = data
+        //     shortenUrl(do_url).then(async (data) => {
+        //         shortDoUrl = data;
+        //         const transaction = new Transaction({
+        //             tenant: req.body.tenantId,
+        //             landlord: req.body.landlordId,
+        //             typeOfTransaction: req.body.typeOfTransaction,
+        //             amount: req.body.amount,
+        //             status: req.body.status,
+        //             paymentMethod: req.body.paymentMethod,
+        //             paymentReceipt: shortDoUrl
+        //         })
+        //         landlord.count += parseInt(req.body.amount)
+        //         await landlord.save()
+        //         await transaction.save()
+        //         res.status(200).json({
+        //             message: 'Transaction ajouté avec succès',
+        //             data: transaction
+        //         });
+        //     })
+        //     .catch(err => res.json({error: err}))
         // })
-        // landlord.count += parseInt(req.body.amount)
-        // await landlord.save()
-        // await transaction.save()
-        // res.status(200).json({
-        //     message: 'Transaction ajouté avec succès',
-        //     data: transaction
-        // });
+        // .catch(err => res.json({error : err}))
+
+        const transaction = new Transaction({
+            tenant: req.body.tenantId,
+            landlord: req.body.landlordId,
+            typeOfTransaction: req.body.typeOfTransaction,
+            amount: req.body.amount,
+            status: req.body.status,
+            paymentMethod: req.body.paymentMethod,
+        })
+        landlord.count += parseInt(req.body.amount)
+        await landlord.save()
+        await transaction.save()
+        res.status(200).json({
+            message: 'Transaction ajouté avec succès',
+            data: transaction
+        });
        
     } catch (error) {
         console.error(error);
@@ -164,9 +164,9 @@ const getoutTransaction = async (req, res) => {
 
         landlord.save()
 
-        const transaction = await new Transaction({
-            tenant: req.body.tenantNumber,
-            landlord: req.body.landlordNumber,
+        const transaction =  new Transaction({
+            tenant: req.body.tenantId,
+            landlord: req.body.landlordId,
             typeOfTransaction: req.body.typeOfTransaction,
             amount: req.body.amount,
             status: req.body.status,
@@ -259,7 +259,7 @@ const getLandlordTransactionsInfos = async (req, res) => {
     try {
         let transactionsInfo = [];
         const landlord = await Landlord.findOne({ _id: req.userId })
-        const transactions = await Transaction.find({});
+        const transactions = await Transaction.find({}).populate({"path" : "landlord"});
         for (const transaction of transactions) {
             const landlordNumber = transaction.landlord;
             if (landlordNumber == landlord.landlordNumber) {
@@ -289,7 +289,7 @@ const getLandlordTransactionsInfos = async (req, res) => {
 const getTransactionsInfos = async (req, res) => {
     try {
         let transactionsInfo = [];
-        const transactions = await Transaction.find({});
+        const transactions = await Transaction.find({}).populate({"path" : "landlord"});
         for (const transaction of transactions) {
             const landlordNumber = transaction.landlord;
             const landlord = await Landlord.findOne({ landlordNumber });
@@ -314,10 +314,10 @@ const getTransactionsInfos = async (req, res) => {
 const getTransactionInfo = async (req, res) => {
     try {
         const transaction = await Transaction.findById(req.params.id);
-        const landlordNumber = transaction.landlord;
-        const landlord = await Landlord.findOne({ landlordNumber });
-        const tenantNumber = transaction.tenant;
-        const tenant = landlord.listOfTenants.filter(tenant => tenant.tenantNumber === tenantNumber);
+        const landlordId = transaction.landlord;
+        const landlord = await Landlord.findOne({ "_id" : landlordId });
+        const tenantId = transaction.tenant;
+        const tenant = landlord.listOfTenants.filter(id => id === tenantId);
         const tenantName = `${tenant.tenantLastname} ${tenant.tenantFirstname}`;
         res.status(200).json({
             message: "the info about a transaction",
