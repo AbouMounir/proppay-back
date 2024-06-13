@@ -8,33 +8,33 @@ dotenv.config({ path: './../../config/.env' })
 
 export async function generateAndUploadPDF(template, data, num) {
 
+
+    try {
     const chromiumPack = "https://github.com/AbouMounir/proppay-back/releases/download/v1.0.1/chromium-v123.0.1-pack.tar"
 
+   
     const browser = await puppeteer.launch({
         args: chromium.args,
         executablePath: await chromium.executablePath(chromiumPack),
         headless: chromium.headless,
     });
-    const page = await browser.newPage();
 
+    console.log(browser)
+
+    const page = await browser.newPage();
     // Remplacer les variables dans le template HTML
     let html = template;
     Object.keys(data).forEach(key => {
         html = html.replace(new RegExp(`{{${key}}}`, 'g'), data[key]);
     });
-
     // Charger le contenu HTML dans la page
     await page.setContent(html, { waitUntil: 'domcontentloaded' });
-
     // Générer le PDF en mémoire    
     const pdfBuffer = await page.pdf({ format: 'A4' });
-
     await browser.close();
-
     // Créer un Readable Stream à partir du buffer
     const readStream = new stream.PassThrough();
-    readStream.end(pdfBuffer);
-
+    readStream.end(pdfBuffer)
     // Paramètres de l'upload vers DigitalOcean Spaces
     const params = {
         Bucket: `${process.env.BUCKET}/factures`, // Remplacez par le nom de votre espace
@@ -43,7 +43,6 @@ export async function generateAndUploadPDF(template, data, num) {
         ACL: 'public-read', // Ou autre permission selon vos besoins
         ContentType: 'application/pdf' // Type MIME du fichier
     };
-
     // Upload vers DigitalOcean Spaces
     return new Promise((resolve, reject) => {
         s3.upload(params, (err, data) => {
@@ -56,4 +55,9 @@ export async function generateAndUploadPDF(template, data, num) {
             }
         });
     });
+    }catch(err) {
+        console.log(err);
+        return err;
+    
+    }
 }

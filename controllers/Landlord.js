@@ -245,7 +245,7 @@ const updateProfil = async (req, res) => {
                     if (!user) {
                         return res.status(404).json({ message: "Utilisateur non trouvé" });
                     }
-                    user.landlordFirstname = req.body.profilImage || user.profilImage;
+                    user.profilImage = req.body.profilImage || user.profilImage;
                     user.landlordFirstname = req.body.landlordFirstname || user.landlordFirstname;
                     user.landlordLastname = req.body.landlordLastname || user.landlordLastname;
                     user.landlordAdress = req.body.landlordAdress || user.landlordAdress;

@@ -100,6 +100,7 @@ const createTransaction = async (req, res) => {
         if (!propriety) {
             return res.json({error : "propriety doesn't exist"})
         }
+        // cela doit etre fait quand la paiement est validé
         await sendRentReceipt(landlord.landlordFirstname, landlord.landlordLastname, landlord.landlordNumber, tenant.tenantFirstName, tenant.tenantLastName, tenant.tenantNumber, req.body.paymentMethod, req.body.amount, tenant.appartementType, tenant.proprietyName, propriety.proprietyAdress)
         .then(async (data) => {
             const do_url = data
@@ -126,6 +127,21 @@ const createTransaction = async (req, res) => {
         })
         .catch(err => res.json({error : err}))
 
+        // const transaction = new Transaction({
+        //     tenant: req.body.tenantId,
+        //     landlord: req.body.landlordId,
+        //     typeOfTransaction: req.body.typeOfTransaction,
+        //     amount: req.body.amount,
+        //     status: req.body.status,
+        //     paymentMethod: req.body.paymentMethod,
+        // })
+        // landlord.count += parseInt(req.body.amount)
+        // await landlord.save()
+        // await transaction.save()
+        // res.status(200).json({
+        //     message: 'Transaction ajouté avec succès',
+        //     data: transaction
+        // });
        
     } catch (error) {
         console.error(error);
@@ -190,17 +206,17 @@ const sendRentReceipt = async (Lfirstname, Llastname, Lnumber, Tfirstname, Tlast
         loyer: amount,
         total: amount,
         tenantRent: amount,
-        proprietyType: proprietyType,
-        proprietyName: proprietyName,
-        proprietyAdress: proprietyAdress,
+        proprietyType: "test",
+        proprietyName: 'test',
+        proprietyAdress: 'test',
         url: `https://${process.env.BUCKET}.ams3.cdn.digitaloceanspaces.com/propay_doc/logo-propay.png`
     }]
     const num = Math.floor(Math.random() * 10);
     const template = fs.readFileSync(path.join(__dirname, '../propay-facture/index.html'), 'utf-8');
 
     try {
-        const pdfUrl = await generateAndUploadPDF(template,data[0],num)
-        .then(async () =>{
+         await generateAndUploadPDF(template,data[0],num)
+        .then(async (pdfUrl) =>{
             const shortDoUrl =  shortenUrl(pdfUrl)
             .then((data) => {
                 const tenantNumber = "%2b" + data[0].Tnumber.substring(1)
