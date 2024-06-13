@@ -162,7 +162,7 @@ const getoutTransaction = async (req, res) => {
 
 
 const finalizeTransaction = async (req, res) => {
-    const transaction = Transaction.findById(req.body.transactionId).populate([{"path" : "landlord"}, {"path" : "tenant"}, {"path" : "property"} ]);
+    const transaction = Transaction.findById(req.body.transactionId).populate([{"path" : "landlord"}, {"path" : "tenant"}]);
     if(!transaction) {
         res.status(404).json({
             error: "transaction not found"

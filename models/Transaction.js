@@ -11,11 +11,6 @@ const transactionSchema = new mongoose.Schema({
         ref: "landlords",
         default: ""
     },
-    property: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "proprietes",
-        default: ""
-    },
     typeOfTransaction: {
         type: String,
         required: true
