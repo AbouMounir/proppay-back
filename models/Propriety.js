@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const Propriety = mongoose.model('proprietes', {
+const proprietySchema =  new mongoose.Schema({
     proprietyId: {
         type: String,
     },
@@ -51,7 +51,9 @@ const Propriety = mongoose.model('proprietes', {
         type: mongoose.Schema.Types.ObjectId,
         ref: "landlords",
         default: ""
-    }
-});
+    },
+    
+}, { timestamps: true });
 
+const Propriety = mongoose.model('proprietes', proprietySchema);
 export default Propriety ;

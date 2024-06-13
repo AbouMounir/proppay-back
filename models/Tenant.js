@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const Tenant = mongoose.model('tenants', {
+const tenantSchema = new mongoose.Schema({
     tenantNumber: {
         type: String,
         unique: true,
@@ -28,6 +28,8 @@ const Tenant = mongoose.model('tenants', {
     tenantPassword: {
         type: String
     }
-});
+}, { timestamps: true });
+
+const Tenant = mongoose.model('tenants', tenantSchema);
 
 export default Tenant ;

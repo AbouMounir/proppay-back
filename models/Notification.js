@@ -18,6 +18,6 @@ const Notification = mongoose.model('notifications', {
         type: Boolean,
         default: false,
     },
-});
+}, { timestamps: true });
 
 export default Notification;
