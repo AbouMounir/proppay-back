@@ -25,7 +25,7 @@ const Landlord = mongoose.model('landlords', {
     landlordPassword: {
         type: String
     },
-    identity: String,
+    identity: {type : String, default : ""},
     listOfTenants:  [
         {
         type: mongoose.Schema.Types.ObjectId,

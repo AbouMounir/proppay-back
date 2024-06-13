@@ -249,7 +249,7 @@ const updateProfil = async (req, res) => {
                     user.landlordFirstname = req.body.landlordFirstname || user.landlordFirstname;
                     user.landlordLastname = req.body.landlordLastname || user.landlordLastname;
                     user.landlordAdress = req.body.landlordAdress || user.landlordAdress;
-                    user.identity = req.profile;
+                    user.identity = req.identity;
                     await user.save();
                     res.send(user);
                 })
